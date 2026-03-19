@@ -163,12 +163,12 @@ function setupBackgroundJobs() {
     cron.schedule('Cleanup Task', 60 * 60 * 1000, async () => {
         // TODO: Add your cleanup logic here
         // Example: clear temp files, refresh cache, etc.
-    });
+    }, app);
 
     // Example: Health check every 30 seconds
     cron.schedule('Health Check', 30 * 1000, async () => {
         // TODO: Add your health check logic here
-    });
+    }, app);
 
     // Start all scheduled jobs
     cron.startAll();

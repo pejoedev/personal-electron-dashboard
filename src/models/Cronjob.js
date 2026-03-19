@@ -1,7 +1,21 @@
 const { leftPad } = require("../helpers/leftPad")
 
+/**
+ * Represents a scheduled cron job that executes a callback at regular intervals
+ */
 class Cronjob {
-    // TODO: method comments
+    /**
+     * Create a new Cronjob instance
+     * @param {string} name - Job name identifier
+     * @param {number} intervalMs - Interval between executions in milliseconds (default: 30000ms)
+     * @param {Function} callback - Async function to execute
+     * @param {number} lastRun - Timestamp of last execution
+     * @param {number} nextRun - Timestamp of next scheduled execution
+     * @param {boolean} isSceduled - Whether the job is currently scheduled
+     * @param {boolean} isRunning - Whether the job is currently running
+     * @param {any} owner - Parent object that owns this cron job
+     * @param {number} identifier - Unique identifier for this job
+     */
     constructor(
         name = null, intervalMs = 30 * 1000,
         callback = null, lastRun = null,
@@ -22,7 +36,9 @@ class Cronjob {
     }
 
     /**
-     * Format milliseconds to human-readable string
+     * Format milliseconds into a human-readable interval string
+     * @param {number} ms - Milliseconds to format
+     * @returns {string} Formatted interval (e.g., "5s", "2m", "1h")
      */
     formatInterval(ms) {
         if (ms == null) return `NULL`
@@ -33,7 +49,7 @@ class Cronjob {
     }
 
     /**
-     * Start a single job with its interval
+     * Start the cron job - schedules it to run at regular intervals
      */
     start() {
         if (this.isSceduled) {
@@ -83,14 +99,19 @@ class Cronjob {
         this._setTimer(timer)
     }
 
+    /**
+     * Stop the cron job from executing further intervals
+     */
     stop() {
         console.log(`[CRON] Stopped: "${this.name}" CR${leftPad(this.identifier, 2, "0")}`);
         this._stopTimer();
         this.isSceduled = false;
     }
 
+
     /**
-     * Get job status
+     * Get the current status of this cron job
+     * @returns {Object} Status object containing job details
      */
     getStatus() {
         return {
@@ -104,10 +125,18 @@ class Cronjob {
         }
     }
 
+    /**
+     * Purge the cron job - stops execution and cleans up
+     */
     purge() {
         this.stop()
     }
 
+    /**
+     * Set the interval timer for this job
+     * @param {number} timer - The timer handle from setInterval
+     * @private
+     */
     _setTimer(timer) {
         if (this.timer != null) {
             clearInterval(this.timer)
@@ -115,6 +144,10 @@ class Cronjob {
         this.timer = timer
     }
 
+    /**
+     * Stop and clear the interval timer
+     * @private
+     */
     _stopTimer() {
         if (this.timer != null) {
             clearInterval(this.timer)
@@ -122,4 +155,4 @@ class Cronjob {
     }
 }
 
-module.exports = new Cronjob();
+module.exports = Cronjob;

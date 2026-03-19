@@ -1,19 +1,25 @@
 const Cronjob = require("./Cronjob")
 
-/**
- * Background cron job scheduler for Electron main process
- * Register your periodic tasks here
- */
 
+/**
+ * Manages scheduling and execution of multiple cron jobs
+ */
 class CronScheduler {
-    // TODO: method comments
-    // TODO: remove unused / outdated methods
+    /**
+     * Create a new CronScheduler instance
+     */
     constructor() {
         this.identifier = 0;
         this.jobs = [];
         this.timers = [];
+        this._freeIdentifier()
     }
 
+    /**
+     * Get the next available job identifier and increment the counter
+     * @returns {number} The next available identifier
+     * @private
+     */
     _freeIdentifier() {
         this.identifier++;
         return this.identifier - 1;
@@ -31,12 +37,11 @@ class CronScheduler {
         let identifier = this._freeIdentifier();
         let cron = new Cronjob(name, intervalMs, callback, null, null, false, false, owner, identifier);
         this.jobs.push(cron);
-        console.log(`[CRON] Scheduled: "${name}" (every ${cron.formatInterval(intervalMs)})`);
         return this;
     }
 
     /**
-     * Start all scheduled jobs
+     * Start all scheduled cron jobs
      */
     startAll() {
         console.log(`[CRON] Starting ${this.jobs.length} job(s)...`);
@@ -47,29 +52,73 @@ class CronScheduler {
     }
 
     /**
-     * Stop all jobs
+     * Stop all cron jobs
+     * @param {boolean} deleteCron - Whether to remove the jobs from the scheduler (default: false)
      */
-    stopAll() {
-        console.log(`[CRON] Stopping all jobs...`);
-        this.timers.forEach((timer) => clearInterval(timer));
-        this.timers = [];
-        this.jobs = [];
-    }
-
-    stopByOwner() {
-        // TODO: finish
-    }
-
-    stopById() {
-        // TODO: finish
-    }
-
-    startById() {
-        // TODO: finish
+    stopAll(deleteCron = false) {
+        this.jobs = this.jobs.filter((job) => {
+            job.stop();
+            return !deleteCron;
+        });
     }
 
     /**
-     * Get job status's
+     * Stop all cron jobs owned by a specific owner
+     * @param {any} owner - The owner object to match
+     * @param {boolean} deleteCron - Whether to remove the jobs from the scheduler (default: false)
+     */
+    stopByOwner(owner, deleteCron = false) {
+        this.jobs = this.jobs.filter((job) => {
+            if (job.owner == owner) {
+                job.stop();
+                return !deleteCron;
+            }
+            return true;
+        });
+    }
+
+    /**
+     * Stop a specific cron job by its identifier
+     * @param {number} identifier - The job identifier to stop
+     * @param {boolean} deleteCron - Whether to remove the job from the scheduler (default: false)
+     */
+    stopById(identifier, deleteCron = false) {
+        this.jobs = this.jobs.filter((job) => {
+            if (job.identifier == identifier) {
+                job.stop();
+                return !deleteCron;
+            }
+            return true;
+        });
+    }
+
+    /**
+     * Start all cron jobs owned by a specific owner
+     * @param {any} owner - The owner object to match
+     */
+    startByOwner(owner) {
+        this.jobs.forEach((job) => {
+            if (job.owner == owner) {
+                job.start();
+            }
+        });
+    }
+
+    /**
+     * Start a specific cron job by its identifier
+     * @param {number} identifier - The job identifier to start
+     */
+    startById(identifier) {
+        this.jobs.forEach((job) => {
+            if (job.identifier == identifier) {
+                job.start();
+            }
+        });
+    }
+
+    /**
+     * Get status information for all scheduled cron jobs
+     * @returns {Array} Array of status objects for each job
      */
     getAllStatus() {
         return this.jobs.map((job) => job.getStatus());
