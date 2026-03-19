@@ -1,6 +1,8 @@
 const { app, BrowserWindow, Tray, Menu, nativeImage } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const cron = require('./models/CronScheduler');
+const { SetupRSS } = require('./rss/rss-setup');
 
 let mainWindow;
 let tray = null;
@@ -138,7 +140,39 @@ const createTray = () => {
 app.whenReady().then(() => {
     createWindow();
     createTray();
+    setupBackgroundJobs();
+    initializeHooks();
 });
+
+function initializeHooks() {
+    SetupRSS()
+}
+
+/**
+ * Setup background cron jobs
+ * Add your periodic tasks here
+ */
+function setupBackgroundJobs() {
+    // Example: Sync data every 5 minutes
+    cron.schedule('Sync Dashboard Data', 5 * 60 * 1000, async () => {
+        // TODO: Add your data sync logic here
+        // Example: fetch from API, update database, etc.
+    });
+
+    // Example: Cleanup every hour
+    cron.schedule('Cleanup Task', 60 * 60 * 1000, async () => {
+        // TODO: Add your cleanup logic here
+        // Example: clear temp files, refresh cache, etc.
+    });
+
+    // Example: Health check every 30 seconds
+    cron.schedule('Health Check', 30 * 1000, async () => {
+        // TODO: Add your health check logic here
+    });
+
+    // Start all scheduled jobs
+    cron.startAll();
+}
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {

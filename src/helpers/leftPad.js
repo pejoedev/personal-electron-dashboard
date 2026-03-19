@@ -1,3 +1,4 @@
+// TODO: method comments
 function leftPad(number, minCharacters, placeCharacter = " ") {
     let returnString = "";
     let leng = `${number}`.length;
