@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, nativeImage } = require('electron');
+const { app, BrowserWindow, Tray, Menu, nativeImage, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const cron = require('./models/CronScheduler');
@@ -136,6 +136,22 @@ const createTray = () => {
     });
 };
 
+// IPC Handlers for main/renderer communication
+ipcMain.on('message-from-renderer', (event, data) => {
+    console.log('Main received:', data);
+    // Send response back
+    event.reply('message-to-renderer', { status: 'received', data: data });
+});
+
+ipcMain.handle('get-dashboard-data', async (event, args) => {
+    // Replace with actual data fetching logic
+    return { data: 'Dashboard data from main process', timestamp: new Date() };
+});
+
+ipcMain.on('pong-from-renderer', (event, data) => {
+    console.log('Pong received from frontend:', data);
+});
+
 // App event listeners
 app.whenReady().then(() => {
     createWindow();
@@ -157,7 +173,7 @@ function setupBackgroundJobs() {
     cron.schedule('Sync Dashboard Data', 5 * 60 * 1000, async () => {
         // TODO: Add your data sync logic here
         // Example: fetch from API, update database, etc.
-    });
+    },app);
 
     // Example: Cleanup every hour
     cron.schedule('Cleanup Task', 60 * 60 * 1000, async () => {
@@ -168,6 +184,13 @@ function setupBackgroundJobs() {
     // Example: Health check every 30 seconds
     cron.schedule('Health Check', 30 * 1000, async () => {
         // TODO: Add your health check logic here
+    },app);
+    
+    // Ping frontend every 10 seconds
+    cron.schedule('Ping Frontend', 10 * 1000, async () => {
+        if (mainWindow && mainWindow.webContents) {
+            mainWindow.webContents.send('ping', { timestamp: new Date() });
+        }
     }, app);
 
     // Start all scheduled jobs
