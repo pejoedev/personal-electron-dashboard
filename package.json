@@ -1,0 +1,52 @@
+{
+  "name": "personal-electron-dashboard",
+  "version": "1.0.0",
+  "description": "just a personal dashboard for myself",
+  "homepage": "https://github.com/pejoedev/personal-electron-dashboard",
+  "repository": {
+    "type": "git",
+    "url": "git@github-oldma:pejoedev/personal-electron-dashboard.git"
+  },
+  "license": "ISC",
+  "author": {
+    "name": "pejoedev",
+    "email": "jondevpet@gmail.com"
+  },
+  "type": "commonjs",
+  "main": "src/main.js",
+  "build": {
+    "appId": "com.example.personal-electron-dashboard",
+    "productName": "Personal Dashboard",
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "src/main.js"
+    },
+    "directories": {
+      "buildResources": "assets"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility"
+    }
+  },
+  "scripts": {
+    "start": "electron . --ozone-platform=x11",
+    "dev": "nodemon --exec electron . --ozone-platform=x11",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "electron-builder",
+    "build:linux": "electron-builder --linux"
+  },
+  "devDependencies": {
+    "electron": "^41.0.0",
+    "electron-builder": "^26.8.1",
+    "nodemon": "^3.1.14"
+  }
+}

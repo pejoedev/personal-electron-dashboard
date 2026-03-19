@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'" />
+    <title>Personal Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="header-title">
+                <h1>📊 My Dashboard</h1>
+            </div>
+            <nav class="header-nav">
+                <ul>
+                    <li><a href="#overview" class="nav-link active">Overview</a></li>
+                    <li><a href="#analytics" class="nav-link">Analytics</a></li>
+                    <li><a href="#settings" class="nav-link">Settings</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Welcome Section -->
+        <section id="overview" class="content-section active">
+            <div class="section-header">
+                <h2>Welcome to Your Dashboard</h2>
+                <p>Last updated: <span id="last-update">Never</span></p>
+            </div>
+
+            <!-- Cards Grid -->
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">📈</div>
+                    <h3>Statistics</h3>
+                    <p class="card-number">42</p>
+                    <p class="card-description">Active items</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">⚡</div>
+                    <h3>Performance</h3>
+                    <p class="card-number">98%</p>
+                    <p class="card-description">System health</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">👥</div>
+                    <h3>Users</h3>
+                    <p class="card-number">127</p>
+                    <p class="card-description">Total registered</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">💾</div>
+                    <h3>Storage</h3>
+                    <p class="card-number">256GB</p>
+                    <p class="card-description">Used space</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics Section -->
+        <section id="analytics" class="content-section">
+            <div class="section-header">
+                <h2>Analytics</h2>
+            </div>
+            <div class="placeholder-box">
+                <p>Analytics content coming soon...</p>
+            </div>
+        </section>
+
+        <!-- Settings Section -->
+        <section id="settings" class="content-section">
+            <div class="section-header">
+                <h2>Settings</h2>
+            </div>
+            <div class="placeholder-box">
+                <p>Settings content coming soon...</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <p>&copy; 2026 Personal Dashboard. All rights reserved.</p>
+            </div>
+            <div class="footer-section">
+                <p>Version 1.0.0 | <a href="#privacy">Privacy</a> | <a href="#terms">Terms</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
