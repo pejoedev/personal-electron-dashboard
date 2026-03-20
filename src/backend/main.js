@@ -2,10 +2,12 @@ const { app, BrowserWindow, Tray, Menu, nativeImage, ipcMain } = require('electr
 const path = require('path');
 const fs = require('fs');
 const cron = require('./models/CronScheduler');
+const Communicator = require('./models/Communicator');
 const { SetupRSS } = require('./rss/rss-setup');
 
 let mainWindow;
 let tray = null;
+let communicator = new Communicator();
 
 const createWindow = () => {
     // Create the browser window (start hidden)
@@ -21,6 +23,9 @@ const createWindow = () => {
             contextIsolation: true,
         },
     });
+
+    // Set the communicator's main window reference
+    communicator.setMainWindow(mainWindow);
 
     // Load the index.html of the app
     mainWindow.loadFile(path.join(__dirname, '../frontend/index.html'));
@@ -139,6 +144,10 @@ const createTray = () => {
 // IPC Handlers for main/renderer communication
 ipcMain.on('message-from-renderer', (event, data) => {
     console.log('Main received:', data);
+    // Emit to all subscribers of this message type
+    if (data.eventType) {
+        communicator.emit(data.eventType, data);
+    }
     // Send response back
     event.reply('message-to-renderer', { status: 'received', data: data });
 });
@@ -173,7 +182,7 @@ function setupBackgroundJobs() {
     cron.schedule('Sync Dashboard Data', 5 * 60 * 1000, async () => {
         // TODO: Add your data sync logic here
         // Example: fetch from API, update database, etc.
-    },app);
+    }, app);
 
     // Example: Cleanup every hour
     cron.schedule('Cleanup Task', 60 * 60 * 1000, async () => {
@@ -184,13 +193,11 @@ function setupBackgroundJobs() {
     // Example: Health check every 30 seconds
     cron.schedule('Health Check', 30 * 1000, async () => {
         // TODO: Add your health check logic here
-    },app);
-    
+    }, app);
+
     // Ping frontend every 10 seconds
     cron.schedule('Ping Frontend', 10 * 1000, async () => {
-        if (mainWindow && mainWindow.webContents) {
-            mainWindow.webContents.send('ping', { timestamp: new Date() });
-        }
+        communicator.send('ping', { timestamp: new Date() });
     }, app);
 
     // Start all scheduled jobs
