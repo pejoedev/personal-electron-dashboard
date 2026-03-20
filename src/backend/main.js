@@ -23,7 +23,7 @@ const createWindow = () => {
     });
 
     // Load the index.html of the app
-    mainWindow.loadFile(path.join(__dirname, 'index.html'));
+    mainWindow.loadFile(path.join(__dirname, '../frontend/index.html'));
 
     // Open DevTools in development (comment out for production)
     // mainWindow.webContents.openDevTools();
@@ -57,7 +57,7 @@ const createTray = () => {
         // In resources root
         path.join(process.resourcesPath, 'assets', 'tray-icon.png'),
         // Development mode
-        path.join(__dirname, '../assets/tray-icon.png'),
+        path.join(__dirname, '../../assets/tray-icon.png'),
     ];
 
     let iconPath = null;

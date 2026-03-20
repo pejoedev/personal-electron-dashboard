@@ -13,7 +13,7 @@
     "email": "jondevpet@gmail.com"
   },
   "type": "commonjs",
-  "main": "src/main.js",
+  "main": "src/backend/main.js",
   "build": {
     "appId": "com.example.personal-electron-dashboard",
     "productName": "Personal Dashboard",
@@ -24,7 +24,7 @@
       "package.json"
     ],
     "extraMetadata": {
-      "main": "src/main.js"
+      "main": "src/backend/main.js"
     },
     "directories": {
       "buildResources": "assets"

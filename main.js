@@ -6,11 +6,11 @@ const createWindow = () => {
         width: 800,
         height: 600,
         webPreferences: {
-            preload: path.join(__dirname, 'src', 'preload.js')
+            preload: path.join(__dirname, 'src', 'backend', 'preload.js')
         }
     })
 
-    win.loadFile(path.join(__dirname, 'src', 'index.html'))
+    win.loadFile(path.join(__dirname, 'src', 'frontend', 'index.html'))
 }
 
 // Listen for messages FROM the renderer
