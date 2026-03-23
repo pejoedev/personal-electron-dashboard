@@ -12,7 +12,22 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 function initializeApp() {
     console.log('Dashboard initialized');
-    // Add initialization logic here
+
+    // Request dashboard data from main process
+    window.electronAPI.getDashboardData().then(result => {
+        console.log('Dashboard data received:', result);
+    }).catch(err => console.error('Error fetching data:', err));
+
+    // Subscribe to messages from main process using the new communicator
+    window.communicator.subscribe('message-to-renderer', (data) => {
+        console.log('Response from main:', data);
+    });
+
+    // Subscribe to ping messages from main process and respond with pong
+    window.communicator.subscribe('ping', (data) => {
+        console.log('Ping received from main:', data);
+        window.communicator.send('pong-from-renderer', { timestamp: new Date(), response: 'pong' });
+    });
 }
 
 /**
