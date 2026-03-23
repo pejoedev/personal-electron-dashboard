@@ -9,11 +9,9 @@ class Footer {
     render() {
         this.container.innerHTML = `
             <div class="footer-content">
-                <p>&copy; 2026 My Dashboard. All rights reserved.</p>
+                <p>&copy; 2026 <a href="https://pejoe.dev/" style="color: inherit" target="_blank">Pejoe.dev</a></p>
                 <div class="footer-links">
-                    <a href="#help">Help</a>
-                    <a href="#about">About</a>
-                    <a href="#privacy">Privacy</a>
+                    <a href="https://github.com/pejoedev/personal-electron-dashboard/issues">Report Issue</a>
                 </div>
             </div>
         `;
