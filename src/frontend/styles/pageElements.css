@@ -7,6 +7,12 @@
   z-index: 1000;
 }
 
+header,
+header * {
+    margin: 0;
+    padding: 0;
+}
+
 .header-container {
   padding: 0 10px;
   max-width: 1400px;
