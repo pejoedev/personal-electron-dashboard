@@ -5,7 +5,7 @@ class Router {
     constructor() {
         this.currentPage = 'dashboard';
         this.pages = {
-            dashboard: 'pages/html/overview.html',
+            dashboard: 'pages/html/dashboard.html',
             rss: 'pages/html/analytics.html',
             settings: 'pages/html/settings.html',
         };
