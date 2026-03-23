@@ -13,6 +13,23 @@
   --spacing: 1rem;
   --radius: 0.5rem;
   --transition: all 0.3s ease;
+
+    ::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--border-color);
+        border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--text-secondary);
+    }
 }
 
 * {
