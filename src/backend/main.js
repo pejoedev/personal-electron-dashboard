@@ -12,10 +12,14 @@ let communicator = new Communicator();
 const createWindow = () => {
     // Create the browser window (start hidden)
     mainWindow = new BrowserWindow({
-        width: 1200,
-        height: 800,
-        minWidth: 800,
-        minHeight: 600,
+        width: 1920,
+        height: 1080,
+        // fullscreen: true,
+        // fullscreenable: true,
+        // kiosk: true,
+        // frame: true,
+        // minWidth: 800,
+        // minHeight: 600,
         show: true,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
