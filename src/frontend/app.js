@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.footer.render();
 
     // Navigate to initial page
-    window.router.navigate('overview');
+    window.router.navigate('dashboard');
 
     // Setup communicator subscriptions
     setupCommunicator();

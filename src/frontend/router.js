@@ -3,10 +3,10 @@
  */
 class Router {
     constructor() {
-        this.currentPage = 'overview';
+        this.currentPage = 'dashboard';
         this.pages = {
-            overview: 'pages/html/overview.html',
-            analytics: 'pages/html/analytics.html',
+            dashboard: 'pages/html/overview.html',
+            rss: 'pages/html/analytics.html',
             settings: 'pages/html/settings.html',
         };
     }

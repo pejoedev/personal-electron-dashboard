@@ -10,12 +10,12 @@ class Header {
         this.container.innerHTML = `
             <div class="header-container">
                 <div class="header-title">
-                    <h1>📊 My Dashboard</h1>
+                    <h1>Pejoe.dash</h1>
                 </div>
                 <nav class="header-nav">
                     <ul>
-                        <li><a href="#overview" class="nav-link" data-page="overview">Overview</a></li>
-                        <li><a href="#analytics" class="nav-link" data-page="analytics">Analytics</a></li>
+                        <li><a href="#overview" class="nav-link" data-page="dashboard">Dashboard</a></li>
+                        <li><a href="#rss" class="nav-link" data-page="rss">RSS</a></li>
                         <li><a href="#settings" class="nav-link" data-page="settings">Settings</a></li>
                     </ul>
                 </nav>
