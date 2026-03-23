@@ -1,24 +1,59 @@
 // Dashboard application logic
 
+/**
+ * Page-specific initialization registry
+ */
+window.pageInit = {
+    overview: () => {
+        console.log('Initializing overview page');
+        updateLastRefresh();
+    },
+    analytics: () => {
+        console.log('Initializing analytics page');
+    },
+    settings: () => {
+        console.log('Initializing settings page');
+    }
+};
+
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
-    initializeApp();
-    setupNavigation();
-    updateLastRefresh();
+    console.log('Dashboard initializing...');
+
+    // Render static components
+    window.header.render();
+    window.footer.render();
+
+    // Navigate to initial page
+    window.router.navigate('overview');
+
+    // Setup communicator subscriptions
+    setupCommunicator();
+
+    // Setup periodic refresh
+    setupRefreshInterval();
+
+    // Allow manual refresh with Ctrl+R
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+            e.preventDefault();
+            refreshDashboard();
+        }
+    });
 });
 
 /**
- * Initialize application
+ * Setup Electron IPC communication
  */
-function initializeApp() {
-    console.log('Dashboard initialized');
-
+function setupCommunicator() {
     // Request dashboard data from main process
-    window.electronAPI.getDashboardData().then(result => {
-        console.log('Dashboard data received:', result);
-    }).catch(err => console.error('Error fetching data:', err));
+    if (window.electronAPI && window.electronAPI.getDashboardData) {
+        window.electronAPI.getDashboardData().then(result => {
+            console.log('Dashboard data received:', result);
+        }).catch(err => console.error('Error fetching data:', err));
+    }
 
-    // Subscribe to messages from main process using the new communicator
+    // Subscribe to messages from main process using the communicator
     window.communicator.subscribe('message-to-renderer', (data) => {
         console.log('Response from main:', data);
     });
@@ -26,41 +61,26 @@ function initializeApp() {
     // Subscribe to ping messages from main process and respond with pong
     window.communicator.subscribe('ping', (data) => {
         console.log('Ping received from main:', data);
-        window.communicator.send('pong-from-renderer', { timestamp: new Date(), response: 'pong' });
+        window.communicator.send('pong-from-renderer', {
+            timestamp: new Date(),
+            currentPage: window.router.getCurrentPage(),
+            response: 'pong'
+        });
     });
 }
 
 /**
- * Setup navigation between sections
+ * Listen for page changes and run page-specific initialization
  */
-function setupNavigation() {
-    const navLinks = document.querySelectorAll('.nav-link');
-    const contentSections = document.querySelectorAll('.content-section');
+window.addEventListener('page-changed', (e) => {
+    const page = e.detail.page;
+    console.log(`Navigated to: ${page}`);
 
-    navLinks.forEach((link) => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-
-            // Get the target section
-            const targetId = link.getAttribute('href').substring(1);
-            const targetSection = document.getElementById(targetId);
-
-            if (!targetSection) return;
-
-            // Remove active class from all sections and links
-            contentSections.forEach((section) => {
-                section.classList.remove('active');
-            });
-            navLinks.forEach((navLink) => {
-                navLink.classList.remove('active');
-            });
-
-            // Add active class to selected section and link
-            targetSection.classList.add('active');
-            link.classList.add('active');
-        });
-    });
-}
+    // Call page-specific initialization function if it exists
+    if (window.pageInit && window.pageInit[page]) {
+        window.pageInit[page]();
+    }
+});
 
 /**
  * Update last refresh timestamp
@@ -82,13 +102,10 @@ function refreshDashboard() {
     // Add your data refresh logic here
 }
 
-// Refresh dashboard every 5 minutes
-setInterval(refreshDashboard, 5 * 60 * 1000);
-
-// Allow manual refresh with Ctrl+R
-document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-        e.preventDefault();
-        refreshDashboard();
-    }
-});
+/**
+ * Setup automatic refresh interval
+ */
+function setupRefreshInterval() {
+    // Refresh dashboard every 5 minutes
+    setInterval(refreshDashboard, 5 * 60 * 1000);
+}
