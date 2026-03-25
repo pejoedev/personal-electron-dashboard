@@ -87,11 +87,43 @@
 
     <!-- Cards Grid -->
     <section class="cards-grid">
-        <div class="card">
-            <div class="card-icon">📈</div>
-            <h3>Statistics</h3>
-            <p class="card-number">42</p>
-            <p class="card-description">Active items</p>
+        <div class="card status-card">
+            <div class="card-header">
+                <div class="card-icon">🖥️</div>
+                <h3>Status Report</h3>
+            </div>
+            <div class="application-list">
+                <div class="server-status">
+                    <div class="status-indicator">
+                        <span class="status-dot online"></span>
+                        <span class="server-name">Main API</span>
+                    </div>
+                    <div class="status-details">
+                        <span class="status-badge online">Online</span>
+                        <span class="status-time">10m ago</span>
+                    </div>
+                </div>
+                <div class="server-status">
+                    <div class="status-indicator">
+                        <span class="status-dot offline"></span>
+                        <span class="server-name">MQTT Broker</span>
+                    </div>
+                    <div class="status-details">
+                        <span class="status-badge offline">Offline</span>
+                        <span class="status-time">3m ago</span>
+                    </div>
+                </div>
+                <div class="server-status">
+                    <div class="status-indicator">
+                        <span class="status-dot online"></span>
+                        <span class="server-name">2nd API</span>
+                    </div>
+                    <div class="status-details">
+                        <span class="status-badge online">Online</span>
+                        <span class="status-time">5h ago</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="card">
