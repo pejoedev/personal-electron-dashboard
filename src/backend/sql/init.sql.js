@@ -1,9 +1,12 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 const { app } = require('electron');
+const { v4: uuidv4 } = require('uuid');
 
 const dbPath = path.join(app.getPath('userData'), 'perselec-dash.db');
 const db = new Database(dbPath);
+
+const INSERT_DATA = true;
 
 // Create tables on app startup
 function initializeDatabase() {
@@ -73,5 +76,25 @@ function initializeDatabase() {
   );
 `);
     console.log("Database Initialized!")
+    if (INSERT_DATA) {
+        templateItems()
+    }
 }
+
+function templateItems() {
+    // Check if rssFollow table is empty
+    const count = db.prepare('SELECT COUNT(*) as count FROM rssFollow').get();
+
+    if (count.count === 0) {
+        // Insert default rssFollow item
+        const uuid = uuidv4();
+        db.prepare(`
+            INSERT INTO rssFollow (uuid, name, rssLink)
+            VALUES (?, ?, ?)
+        `).run(uuid, 'dimden.dev', 'https://dimden.dev/rss.xml');
+
+        console.log('Default RSS feed added: dimden.dev');
+    }
+}
+
 module.exports = { db, initializeDatabase };

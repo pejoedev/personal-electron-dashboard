@@ -5,6 +5,7 @@ class SettingsHandler {
     constructor() {
         console.log("SettingsHandler initiated")
         this.rssFollow = this.loadRssSettings()
+        console.log(this.rssFollow)
     }
 
     loadRssSettings() {
