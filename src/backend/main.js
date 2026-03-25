@@ -200,9 +200,9 @@ function setupBackgroundJobs() {
     }, app);
 
     // Ping frontend every 10 seconds
-    cron.schedule('Ping Frontend', 10 * 1000, async () => {
-        communicator.send('ping', { timestamp: new Date() });
-    }, app);
+    // cron.schedule('Ping Frontend', 10 * 1000, async () => {
+    //     communicator.send('ping', { timestamp: new Date() });
+    // }, app);
 
     // Start all scheduled jobs
     cron.startAll();
