@@ -4,7 +4,9 @@ const fs = require('fs');
 const cron = require('./models/CronScheduler');
 const Communicator = require('./models/Communicator');
 const { SetupRSS } = require('./rss/rss-setup');
+const { db, initializeDatabase } = require('./sql/init.sql');
 
+initializeDatabase();
 let mainWindow;
 let tray = null;
 let communicator = new Communicator();
