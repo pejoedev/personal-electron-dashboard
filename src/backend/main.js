@@ -7,6 +7,8 @@ const { SetupRSS } = require('./rss/rss-setup');
 const { db, initializeDatabase } = require('./sql/init.sql');
 
 initializeDatabase();
+
+const SettingsHandler = require("./models/settingsHandler")
 let mainWindow;
 let tray = null;
 let communicator = new Communicator();
