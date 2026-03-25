@@ -9,14 +9,22 @@ const db = new Database(dbPath);
 function initializeDatabase() {
     console.log('Database path:', dbPath);
     db.exec(`
+  CREATE TABLE IF NOT EXISTS rssFollow (
+    uuid TEXT PRIMARY KEY,
+    name TEXT,
+    rssLink TEXT
+  );
+
   CREATE TABLE IF NOT EXISTS feed (
     uuid TEXT PRIMARY KEY,
+    rssId TEXT NOT NULL,
     name TEXT,
     link TEXT,
     rss_url TEXT,
     last_fetch TEXT,
     description TEXT,
-    language TEXT
+    language TEXT,
+    FOREIGN KEY (rssId) REFERENCES rssFollow(uuid)
   );
 
   CREATE TABLE IF NOT EXISTS message (
@@ -39,19 +47,20 @@ function initializeDatabase() {
   CREATE TABLE IF NOT EXISTS project (
     uuid TEXT PRIMARY KEY,
     name TEXT,
+    fetchAlertEndpoint TEXT,
     link TEXT,
     healthCheckUrl TEXT
   );
 
   CREATE TABLE IF NOT EXISTS securityAlert (
     uuid TEXT PRIMARY KEY,
-    projectId TEXT NOT NULL,
     messageId TEXT NOT NULL,
+    projectId TEXT NOT NULL,
     level TEXT,
     blob TEXT,
     resolved BOOLEAN,
-    FOREIGN KEY (projectId) REFERENCES project(uuid),
-    FOREIGN KEY (messageId) REFERENCES message(uuid)
+    FOREIGN KEY (messageId) REFERENCES message(uuid),
+    FOREIGN KEY (projectId) REFERENCES project(uuid)
   );
 
   CREATE TABLE IF NOT EXISTS projectHealthCheck (
