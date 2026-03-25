@@ -39,7 +39,8 @@ function initializeDatabase() {
   CREATE TABLE IF NOT EXISTS project (
     uuid TEXT PRIMARY KEY,
     name TEXT,
-    link TEXT
+    link TEXT,
+    healthCheckUrl TEXT
   );
 
   CREATE TABLE IF NOT EXISTS securityAlert (
@@ -51,6 +52,15 @@ function initializeDatabase() {
     resolved BOOLEAN,
     FOREIGN KEY (projectId) REFERENCES project(uuid),
     FOREIGN KEY (messageId) REFERENCES message(uuid)
+  );
+
+  CREATE TABLE IF NOT EXISTS projectHealthCheck (
+    uuid TEXT PRIMARY KEY,
+    projectId TEXT NOT NULL,
+    fetch TEXT,
+    status TEXT,
+    httpResponse TEXT,
+    FOREIGN KEY (projectId) REFERENCES project(uuid)
   );
 `);
     console.log("Database Initialized!")

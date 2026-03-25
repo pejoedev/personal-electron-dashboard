@@ -297,6 +297,150 @@
     }
 }
 
+/* Status Card Styling */
+.status-card {
+    display: flex !important;
+    flex-direction: column;
+    gap: 1.25rem !important;
+    grid-template-columns: unset !important;
+    align-items: unset !important;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.status-card .card-icon {
+    font-size: 1.8rem;
+}
+
+.status-card h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0;
+}
+
+/* Application List */
+.application-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Server Status Items */
+.server-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    background: var(--background-color);
+    border-radius: calc(var(--radius) - 2px);
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.server-status:hover {
+    background: var(--surface-color);
+    border-color: var(--primary-color);
+    padding-left: 1rem;
+    padding-right: 0.75rem;
+}
+
+/* Status Indicator */
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex: 1;
+}
+
+.status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.status-dot.online {
+    background: var(--success-color);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+.status-dot.offline {
+    background: #ee5a52;
+    box-shadow: 0 0 4px rgba(238, 90, 82, 0.3);
+    animation: none;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.server-name {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+/* Status Details */
+.status-details {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    transition: var(--transition);
+}
+
+.status-badge.online {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success-color);
+}
+
+.status-badge.offline {
+    background: rgba(238, 90, 82, 0.15);
+    color: #ee5a52;
+}
+
+.status-time {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.server-status:hover .status-time {
+    color: var(--text-primary);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    #entire-dash {
+        grid-template-columns: 1fr;
+    }
+    
+    #rss-feed {
+        max-height: 300px;
+    }
+}
+
 @media (max-width: 640px) {
     #entire-dash {
         gap: 1rem;
@@ -308,5 +452,16 @@
     
     .card-number {
         font-size: 1.5rem;
+    }
+    
+    .server-status {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .status-details {
+        width: 100%;
+        justify-content: space-between;
     }
 }
