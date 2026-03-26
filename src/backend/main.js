@@ -8,7 +8,7 @@ const { db, initializeDatabase } = require('./sql/init.sql');
 
 initializeDatabase();
 
-const SettingsHandler = require("./models/settingsHandler")
+const settingsHandler = require("./models/settingsHandler")
 let mainWindow;
 let tray = null;
 let communicator = new Communicator();
@@ -209,7 +209,7 @@ function setupBackgroundJobs() {
     // }, app);
 
     // Start all scheduled jobs
-    cron.startAll();
+    cron.startAll(true);
 }
 
 app.on('window-all-closed', () => {

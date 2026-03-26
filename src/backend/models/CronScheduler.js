@@ -43,11 +43,11 @@ class CronScheduler {
     /**
      * Start all scheduled cron jobs
      */
-    startAll() {
+    startAll(immediateExecute = false) {
         console.log(`[CRON] Starting ${this.jobs.length} job(s)...`);
 
         this.jobs.forEach((job) => {
-            job.start();
+            job.start(immediateExecute);
         });
     }
 
@@ -96,10 +96,10 @@ class CronScheduler {
      * Start all cron jobs owned by a specific owner
      * @param {any} owner - The owner object to match
      */
-    startByOwner(owner) {
+    startByOwner(owner, immediateExecute = false) {
         this.jobs.forEach((job) => {
             if (job.owner == owner) {
-                job.start();
+                job.start(immediateExecute);
             }
         });
     }
@@ -108,10 +108,10 @@ class CronScheduler {
      * Start a specific cron job by its identifier
      * @param {number} identifier - The job identifier to start
      */
-    startById(identifier) {
+    startById(identifier, immediateExecute = false) {
         this.jobs.forEach((job) => {
             if (job.identifier == identifier) {
-                job.start();
+                job.start(immediateExecute);
             }
         });
     }

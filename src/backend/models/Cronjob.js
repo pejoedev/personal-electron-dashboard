@@ -51,7 +51,7 @@ class Cronjob {
     /**
      * Start the cron job - schedules it to run at regular intervals
      */
-    start() {
+    start(immediateExecute = false) {
         if (this.isSceduled) {
             console.warn(
                 `[CRON] Job "${this.name}" CR${leftPad(this.identifier, 2, "0")} is already sceduled, skipping...`
@@ -92,7 +92,9 @@ class Cronjob {
         };
 
         // Run immediately on first schedule
-        execute();
+        if (immediateExecute) {
+            execute();
+        }
 
         // Schedule subsequent runs
         const timer = setInterval(execute, this.intervalMs);

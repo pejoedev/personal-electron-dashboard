@@ -28,7 +28,7 @@ class SettingsHandler {
     }
 
     getRssFollowedChannels() {
-
+        return this.rssFollow;
     }
 
 }
