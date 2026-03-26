@@ -1,4 +1,5 @@
 const settingsHandler = require("../models/settingsHandler")
+const xml2js = require('xml2js');
 const cron = require('../models/CronScheduler');
 
 const ModuleName = "rss-setup"
@@ -21,8 +22,11 @@ async function FetchRss() {
 async function _FetchWebsite(url) {
     const response = await fetch(url);
     const data = await response.text()
-    console.log(data);
-    return data
+    const parser = new xml2js.Parser();
+    const parsedData = await parser.parseStringPromise(data);
+
+    console.log(JSON.stringify(parsedData));
+    return parsedData;
 }
 
 function SetupRSS() {
