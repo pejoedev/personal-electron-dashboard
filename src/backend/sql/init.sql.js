@@ -23,7 +23,6 @@ function initializeDatabase() {
     rssId TEXT NOT NULL,
     name TEXT,
     link TEXT,
-    rss_url TEXT,
     last_fetch TEXT,
     description TEXT,
     language TEXT,
