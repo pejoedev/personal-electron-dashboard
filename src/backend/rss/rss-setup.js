@@ -17,6 +17,29 @@ async function FetchRss() {
     settingsHandler.rssFollow.forEach(async (item) => {
         let respone = await _FetchWebsite(item.rssLink)
         console.log(respone.rss.channel);
+        let responeChannel = respone.rss.channel;
+        let formattedResponse = {
+            formattedItems: []
+        };
+        formattedResponse.title = responeChannel.title;
+        formattedResponse.rssId = item.uuid;
+        formattedResponse.link = responeChannel.link;
+        formattedResponse.description = responeChannel.description;
+        formattedResponse.language = responeChannel.language;
+        formattedResponse.last_fetch = `${new Date(Date.now()).toUTCString()}`
+        let itemsList = responeChannel.item;
+        itemsList.forEach((item) => {
+            let formattedItem = {};
+            formattedItem.title = item.title;
+            formattedItem.link = item.link;
+            formattedItem.description = item.description;
+            formattedItem.publication_date = item.pubDate;
+            formattedItem.uuid = item.guid ?? null;
+            formattedItem.viewed = false;
+            formattedResponse.formattedItems.push(formattedItem);
+        });
+        console.log(formattedResponse);
+
 
         // TODO: assign logic to parse the json to the db schema
         // and call the settingHandlers updateChannelInfo() and saveFetchedFeed()
