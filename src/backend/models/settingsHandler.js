@@ -8,6 +8,14 @@ class SettingsHandler {
         console.log(this.rssFollow)
     }
 
+    updateChannelInfo() {
+        // TODO: add items to the feed db if they don't exist already. and update the data
+    }
+
+    saveFetchedFeed() {
+        // TODO: add fetched items to the messages table, but don't re-create existing ones
+    }
+
     loadRssSettings() {
         const stmt = db.prepare(`
             SELECT 

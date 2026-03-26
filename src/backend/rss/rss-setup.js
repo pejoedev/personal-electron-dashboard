@@ -14,15 +14,24 @@ function RegisterCrons() {
 
 async function FetchRss() {
     console.log("Fetching RSS Feeds!")
-    settingsHandler.rssFollow.forEach((item) => {
-        _FetchWebsite(item.rssLink)
+    settingsHandler.rssFollow.forEach(async (item) => {
+        let respone = await _FetchWebsite(item.rssLink)
+        console.log(respone.rss.channel);
+
+        // TODO: assign logic to parse the json to the db schema
+        // and call the settingHandlers updateChannelInfo() and saveFetchedFeed()
     })
+
+    // TODO: send the new data to the frontends
 }
 
 async function _FetchWebsite(url) {
     const response = await fetch(url);
     const data = await response.text()
-    const parser = new xml2js.Parser();
+    const parser = new xml2js.Parser({
+        explicitArray: false,
+        mergeAttrs: true
+    });
     const parsedData = await parser.parseStringPromise(data);
 
     console.log(parsedData);
