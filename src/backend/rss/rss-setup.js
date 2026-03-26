@@ -6,13 +6,23 @@ const ModuleName = "rss-setup"
 function RegisterCrons() {
     // every hour
     cron.schedule('Fetch RSS Info', 60 * 60 * 1000, async () => {
-        FetchRss()
+        await FetchRss()
     }, ModuleName);
     cron.startAll(true)
 }
 
-function FetchRss() {
+async function FetchRss() {
     console.log("Fetching RSS Feeds!")
+    settingsHandler.rssFollow.forEach((item) => {
+        _FetchWebsite(item.rssLink)
+    })
+}
+
+async function _FetchWebsite(url) {
+    const response = await fetch(url);
+    const data = await response.text()
+    console.log(data);
+    return data
 }
 
 function SetupRSS() {
