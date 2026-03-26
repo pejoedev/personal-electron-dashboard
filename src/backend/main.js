@@ -3,10 +3,11 @@ const path = require('path');
 const fs = require('fs');
 const cron = require('./models/CronScheduler');
 const Communicator = require('./models/Communicator');
-const { SetupRSS } = require('./rss/rss-setup');
 const { db, initializeDatabase } = require('./sql/init.sql');
 
 initializeDatabase();
+
+const { SetupRSS } = require('./rss/rss-setup');
 
 const settingsHandler = require("./models/settingsHandler")
 let mainWindow;
@@ -178,7 +179,9 @@ app.whenReady().then(() => {
 });
 
 function initializeHooks() {
-    SetupRSS()
+    setTimeout(() => {
+        SetupRSS()
+    }, 1000)
 }
 
 /**

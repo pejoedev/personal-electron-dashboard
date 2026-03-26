@@ -76,9 +76,11 @@ function initializeDatabase() {
   );
 `);
     console.log("Database Initialized!")
-    if (INSERT_DATA) {
-        templateItems()
-    }
+    setTimeout(() => {
+        if (INSERT_DATA) {
+            templateItems()
+        }
+    }, 100)
 }
 
 function templateItems() {
