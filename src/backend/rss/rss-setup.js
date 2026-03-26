@@ -25,7 +25,7 @@ async function _FetchWebsite(url) {
     const parser = new xml2js.Parser();
     const parsedData = await parser.parseStringPromise(data);
 
-    console.log(JSON.stringify(parsedData));
+    console.log(parsedData);
     return parsedData;
 }
 
