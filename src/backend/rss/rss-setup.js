@@ -53,6 +53,7 @@ async function FetchRss() {
     // console.log(allChannelFeeds);
 
     // TODO: send the new data to the frontends
+    // this means the feed items and the Settings
 }
 
 async function _FetchWebsite(url) {
