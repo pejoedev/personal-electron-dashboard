@@ -23,20 +23,20 @@ async function FetchRss() {
             formattedItems: []
         };
         formattedResponse.uuid = null;
-        formattedResponse.title = responeChannel.title;
-        formattedResponse.rssId = item.uuid;
-        formattedResponse.link = responeChannel.link;
-        formattedResponse.description = responeChannel.description;
-        formattedResponse.language = responeChannel.language;
+        formattedResponse.title = `${responeChannel.title ?? ""}`;
+        formattedResponse.rssId = `${item.uuid ?? ""}`;
+        formattedResponse.link = `${responeChannel.link ?? ""}`;
+        formattedResponse.description = `${responeChannel.description ?? ""}`;
+        formattedResponse.language = `${responeChannel.language ?? ""}`;
         formattedResponse.last_fetch = `${new Date(Date.now()).toUTCString()}`
         let itemsList = responeChannel.item;
-        itemsList.forEach((item) => {
+        itemsList.forEach((itemItem) => {
             let formattedItem = {};
-            formattedItem.title = item.title;
-            formattedItem.link = item.link;
-            formattedItem.description = item.description;
-            formattedItem.publication_date = item.pubDate;
-            formattedItem.guid = `${item.guid ?? ""}`;
+            formattedItem.title = `${itemItem.title ?? ""}`;
+            formattedItem.link = `${itemItem.link ?? ""}`;
+            formattedItem.description = `${itemItem.description ?? ""}`;
+            formattedItem.publication_date = `${itemItem.pubDate ?? ""}`;
+            formattedItem.guid = `${itemItem.guid ?? ""}`;
             formattedItem.viewed = false;
             formattedResponse.formattedItems.push(formattedItem);
         });
