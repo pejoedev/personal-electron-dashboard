@@ -202,9 +202,10 @@ function setupBackgroundJobs() {
     }, app);
 
     // Example: Health check every 30 seconds
-    cron.schedule('Health Check', 30 * 1000, async () => {
+    cron.schedule('Health Check', 10 * 1000, async (cronjob) => {
+        console.log(cronjob?.getStatus())
         // TODO: Add your health check logic here
-    }, app);
+    }, app, 3);
 
     // Ping frontend every 10 seconds
     // cron.schedule('Ping Frontend', 10 * 1000, async () => {

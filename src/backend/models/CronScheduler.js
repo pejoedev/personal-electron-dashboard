@@ -31,11 +31,12 @@ class CronScheduler {
      * @param {number} intervalMs - Interval in milliseconds
      * @param {Function} callback - Async function to execute
      * @param {any} owner - An object that claims responsability over a Cron. Allows CronScheduler to kill all child Crons.
+     * @param {number} fireLimit - WIll prevent firing after this number has been reached, null will not have an limit.
      * @returns {this} - For chaining
      */
-    schedule(name = null, intervalMs = 30 * 1000, callback = null, owner = null) {
+    schedule(name = null, intervalMs = 30 * 1000, callback = null, owner = null, fireLimit = null) {
         let identifier = this._freeIdentifier();
-        let cron = new Cronjob(name, intervalMs, callback, null, null, false, false, owner, identifier);
+        let cron = new Cronjob(name, intervalMs, callback, null, null, false, false, owner, identifier, fireLimit);
         this.jobs.push(cron);
         return this;
     }

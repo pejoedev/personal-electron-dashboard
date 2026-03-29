@@ -20,7 +20,7 @@ class Cronjob {
         name = null, intervalMs = 30 * 1000,
         callback = null, lastRun = null,
         nextRun = null, isSceduled = false, isRunning = false,
-        owner = null, identifier = null
+        owner = null, identifier = null, fireLimit = null
     ) {
         this.name = name;
         this.intervalMs = intervalMs;
@@ -32,6 +32,8 @@ class Cronjob {
         this.owner = owner;
         this.identifier = identifier;
         this.timer = null;
+        this.fireLimit = fireLimit;
+        this.firedTimes = 0;
         console.log(`[CRON] Created: "${name}" CR${leftPad(this.identifier, 2, "0")} (every ${this.formatInterval(intervalMs)})`);
     }
 
@@ -60,6 +62,12 @@ class Cronjob {
         }
         this.isSceduled = true;
         const execute = async () => {
+            if (this.fireLimit != null && this.firedTimes >= this.fireLimit) {
+                console.info(
+                    `[CRON] Job "${this.name}" CR${leftPad(this.identifier, 2, "0")} has reached it's limit of ${this.fireLimit} fires.`
+                );
+                return;
+            }
             if (this.isRunning) {
                 console.warn(
                     `[CRON] Job "${this.name}" CR${leftPad(this.identifier, 2, "0")} is still running, skipping this interval`
@@ -74,10 +82,11 @@ class Cronjob {
             }
 
             this.isRunning = true;
+            this.firedTimes += 1;
             const startTime = Date.now();
 
             try {
-                await Promise.resolve(this.callback());
+                await Promise.resolve(this.callback(this));
                 this.lastRun = Date.now();
                 const duration = this.lastRun - startTime;
                 console.log(
@@ -123,6 +132,8 @@ class Cronjob {
             nextRun: new Date(this.nextRun).toLocaleString(),
             isRunning: this.isRunning,
             identifier: this.identifier,
+            fireLimit: this.fireLimit,
+            firedTimes: this.firedTimes,
             parent: (this.owner == null ? null : (this.owner.name == undefined ? "NAMELESS" : this.owner.name))
         }
     }
