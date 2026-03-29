@@ -64,8 +64,9 @@ class Cronjob {
         const execute = async () => {
             if (this.fireLimit != null && this.firedTimes >= this.fireLimit) {
                 console.info(
-                    `[CRON] Job "${this.name}" CR${leftPad(this.identifier, 2, "0")} has reached it's limit of ${this.fireLimit} fires.`
+                    `[CRON] Job "${this.name}" CR${leftPad(this.identifier, 2, "0")} has reached it's limit of ${this.fireLimit} fires. Will stop Cron..`
                 );
+                this.stop();
                 return;
             }
             if (this.isRunning) {
