@@ -1,4 +1,4 @@
-// V1.0.6
+// V1.0.7
 
 Table rssFollow {
   uuid TEXT [pk]
@@ -28,6 +28,7 @@ Table message {
 
 Table rss {
   uuid TEXT [pk]
+  rss_guid TEXT 
   feedId TEXT [ref: > feed.uuid]
   messageId TEXT [ref: > message.uuid]
 }

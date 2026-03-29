@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const dbPath = path.join(app.getPath('userData'), 'perselec-dash.db');
 const db = new Database(dbPath);
-const DB_DIAGRAM_VERSION = "v1.0.6";
+const DB_DIAGRAM_VERSION = "v1.0.7";
 
 const INSERT_DATA = true;
 
@@ -41,6 +41,7 @@ function initializeDatabase() {
 
   CREATE TABLE IF NOT EXISTS rss (
     uuid TEXT PRIMARY KEY,
+    rss_guid TEXT,
     feedId TEXT NOT NULL,
     messageId TEXT NOT NULL,
     FOREIGN KEY (feedId) REFERENCES feed(uuid),
