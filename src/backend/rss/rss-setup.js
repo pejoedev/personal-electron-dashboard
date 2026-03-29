@@ -14,9 +14,9 @@ function RegisterCrons() {
 
 async function FetchRss() {
     console.log("Fetching RSS Feeds!")
-    settingsHandler.rssFollow.forEach(async (item) => {
+    const allChannelFeeds = [];
+    await Promise.all(settingsHandler.rssFollow.map(async (item) => {
         let respone = await _FetchWebsite(item.rssLink)
-        console.log(respone.rss.channel);
         let responeChannel = respone.rss.channel;
         let formattedResponse = {
             formattedItems: []
@@ -38,12 +38,17 @@ async function FetchRss() {
             formattedItem.viewed = false;
             formattedResponse.formattedItems.push(formattedItem);
         });
-        console.log(formattedResponse);
-
+        allChannelFeeds.push(formattedResponse)
+        settingsHandler.updateChannelInfo(
+            formattedResponse.title, formattedResponse.rssId,
+            formattedResponse.link, formattedResponse.description,
+            formattedResponse.language, formattedResponse.last_fetch,
+        )
 
         // TODO: assign logic to parse the json to the db schema
         // and call the settingHandlers updateChannelInfo() and saveFetchedFeed()
-    })
+    }));
+    console.log(allChannelFeeds);
 
     // TODO: send the new data to the frontends
 }
@@ -57,7 +62,6 @@ async function _FetchWebsite(url) {
     });
     const parsedData = await parser.parseStringPromise(data);
 
-    console.log(parsedData);
     return parsedData;
 }
 
