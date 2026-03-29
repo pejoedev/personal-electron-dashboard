@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const dbPath = path.join(app.getPath('userData'), 'perselec-dash.db');
 const db = new Database(dbPath);
+const DB_DIAGRAM_VERSION = "v1.0.5";
 
 const INSERT_DATA = true;
 
@@ -35,7 +36,8 @@ function initializeDatabase() {
     link TEXT,
     description TEXT,
     publication_date TEXT,
-    viewed BOOLEAN
+    viewed BOOLEAN,
+    encoded_content TEXT
   );
 
   CREATE TABLE IF NOT EXISTS rss (
@@ -74,7 +76,7 @@ function initializeDatabase() {
     FOREIGN KEY (projectId) REFERENCES project(uuid)
   );
 `);
-    console.log("Database Initialized!")
+    console.log(`Database ${DB_DIAGRAM_VERSION} Initialized!`)
     setTimeout(() => {
         if (INSERT_DATA) {
             templateItems()
