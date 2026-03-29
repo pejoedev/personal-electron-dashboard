@@ -1,4 +1,5 @@
 const settingsHandler = require("../models/settingsHandler")
+const messagesHandler = require("../models/MessagesHandler")
 const xml2js = require('xml2js');
 const cron = require('../models/CronScheduler');
 
@@ -21,6 +22,7 @@ async function FetchRss() {
         let formattedResponse = {
             formattedItems: []
         };
+        formattedResponse.uuid = null;
         formattedResponse.title = responeChannel.title;
         formattedResponse.rssId = item.uuid;
         formattedResponse.link = responeChannel.link;
@@ -34,35 +36,48 @@ async function FetchRss() {
             formattedItem.link = item.link;
             formattedItem.description = item.description;
             formattedItem.publication_date = item.pubDate;
-            formattedItem.uuid = item.guid ?? null;
+            formattedItem.guid = `${item.guid ?? ""}`;
             formattedItem.viewed = false;
             formattedResponse.formattedItems.push(formattedItem);
         });
         allChannelFeeds.push(formattedResponse)
-        settingsHandler.updateChannelInfo(
+        formattedResponse.uuid = settingsHandler.updateChannelInfo(
             formattedResponse.title, formattedResponse.rssId,
             formattedResponse.link, formattedResponse.description,
             formattedResponse.language, formattedResponse.last_fetch,
         )
-
-        // TODO: assign logic to parse the json to the db schema
-        // and call the settingHandlers updateChannelInfo() and saveFetchedFeed()
     }));
-    console.log(allChannelFeeds);
+
+    messagesHandler.pushFetch(allChannelFeeds)
+
+    // console.log(allChannelFeeds);
 
     // TODO: send the new data to the frontends
 }
 
 async function _FetchWebsite(url) {
     const response = await fetch(url);
-    const data = await response.text()
+    const data = await response.text();
+
+    // Extract only the XML portion
+    const xmlStart = data.indexOf('<?xml');
+    const rssStart = data.indexOf('<rss');
+    const startIndex = xmlStart !== -1 ? xmlStart : rssStart;
+
+    if (startIndex === -1) {
+        console.log(`No valid RSS found in response: ${url}`)
+    }
+
+    const xmlData = data.substring(startIndex);
+    const xmlEnd = xmlData.indexOf('</rss>') + 6;
+    const cleanXml = xmlData.substring(0, xmlEnd);
+
     const parser = new xml2js.Parser({
         explicitArray: false,
         mergeAttrs: true
     });
-    const parsedData = await parser.parseStringPromise(data);
 
-    return parsedData;
+    return await parser.parseStringPromise(cleanXml);
 }
 
 function SetupRSS() {

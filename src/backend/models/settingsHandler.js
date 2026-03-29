@@ -36,10 +36,6 @@ class SettingsHandler {
         }
     }
 
-    saveFetchedFeed() {
-        // TODO: add fetched items to the messages table, but don't re-create existing ones
-    }
-
     loadRssSettings() {
         const stmt = db.prepare(`
             SELECT 
