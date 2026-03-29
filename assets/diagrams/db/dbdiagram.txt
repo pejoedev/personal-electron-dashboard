@@ -1,3 +1,5 @@
+// V1.0.5
+
 Table rssFollow {
   uuid TEXT [pk]
   name TEXT
@@ -22,6 +24,7 @@ Table message {
   description TEXT
   publication_date TEXT
   viewed BOOLEAN
+  encoded_content TEXT
 }
 
 Table rss {
