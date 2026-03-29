@@ -33,7 +33,7 @@ class Cronjob {
         this.identifier = identifier;
         this.timer = null;
         this.fireLimit = fireLimit;
-        this.firedTimes = 0;
+        this._firedTimes = 0;
         console.log(`[CRON] Created: "${name}" CR${leftPad(this.identifier, 2, "0")} (every ${this.formatInterval(intervalMs)})`);
     }
 
@@ -50,10 +50,19 @@ class Cronjob {
         return `${(ms / 3600000).toFixed(1)}h`;
     }
 
+    resetFiredTimesCounter() {
+        this._firedTimes = 0;
+    }
+
     /**
      * Start the cron job - schedules it to run at regular intervals
+     * @param {boolean} immediateExecute - To automatically execute after running start()
+     * @param {boolean} resetLimits - whether to reset the counter of firedTimes
      */
-    start(immediateExecute = false) {
+    start(immediateExecute = false, resetLimits = false) {
+        if (resetLimits) {
+            this._firedTimes = 0;
+        }
         if (this.isSceduled) {
             console.warn(
                 `[CRON] Job "${this.name}" CR${leftPad(this.identifier, 2, "0")} is already sceduled, skipping...`
@@ -62,7 +71,7 @@ class Cronjob {
         }
         this.isSceduled = true;
         const execute = async () => {
-            if (this.fireLimit != null && this.firedTimes >= this.fireLimit) {
+            if (this.fireLimit != null && this._firedTimes >= this.fireLimit) {
                 console.info(
                     `[CRON] Job "${this.name}" CR${leftPad(this.identifier, 2, "0")} has reached it's limit of ${this.fireLimit} fires. Will stop Cron..`
                 );
@@ -83,7 +92,7 @@ class Cronjob {
             }
 
             this.isRunning = true;
-            this.firedTimes += 1;
+            this._firedTimes += 1;
             const startTime = Date.now();
 
             try {
@@ -134,7 +143,7 @@ class Cronjob {
             isRunning: this.isRunning,
             identifier: this.identifier,
             fireLimit: this.fireLimit,
-            firedTimes: this.firedTimes,
+            firedTimes: this._firedTimes,
             parent: (this.owner == null ? null : (this.owner.name == undefined ? "NAMELESS" : this.owner.name))
         }
     }

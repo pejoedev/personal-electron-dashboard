@@ -43,12 +43,14 @@ class CronScheduler {
 
     /**
      * Start all scheduled cron jobs
+     * @param {boolean} immediateExecute - To automatically execute after running start()
+     * @param {boolean} resetLimits - whether to reset the counter of firedTimes
      */
-    startAll(immediateExecute = false) {
+    startAll(immediateExecute = false, resetLimits = false) {
         console.log(`[CRON] Starting ${this.jobs.length} job(s)...`);
 
         this.jobs.forEach((job) => {
-            job.start(immediateExecute);
+            job.start(immediateExecute, resetLimits);
         });
     }
 
@@ -96,11 +98,13 @@ class CronScheduler {
     /**
      * Start all cron jobs owned by a specific owner
      * @param {any} owner - The owner object to match
+     * @param {boolean} immediateExecute - To automatically execute after running start()
+     * @param {boolean} resetLimits - whether to reset the counter of firedTimes
      */
-    startByOwner(owner, immediateExecute = false) {
+    startByOwner(owner, immediateExecute = false, resetLimits = false) {
         this.jobs.forEach((job) => {
             if (job.owner == owner) {
-                job.start(immediateExecute);
+                job.start(immediateExecute, resetLimits);
             }
         });
     }
@@ -108,11 +112,13 @@ class CronScheduler {
     /**
      * Start a specific cron job by its identifier
      * @param {number} identifier - The job identifier to start
+     * @param {boolean} immediateExecute - To automatically execute after running start()
+     * @param {boolean} resetLimits - whether to reset the counter of firedTimes
      */
-    startById(identifier, immediateExecute = false) {
+    startById(identifier, immediateExecute = false, resetLimits = false) {
         this.jobs.forEach((job) => {
             if (job.identifier == identifier) {
-                job.start(immediateExecute);
+                job.start(immediateExecute, resetLimits);
             }
         });
     }
