@@ -57,16 +57,26 @@ class MessagesHandler {
         const messages = db.prepare(query).all();
         const result = [];
 
+        // Prepare statements once outside the loop
+        const getRssEntryStmt = db.prepare(`
+            SELECT r.*, f.name as feed_name, f.link as feed_link
+            FROM rss r
+            JOIN feed f ON r.feedId = f.uuid
+            WHERE r.messageId = ?
+        `);
+
+        const getAlertEntryStmt = db.prepare(`
+            SELECT sa.*, p.name as project_name, p.link as project_link
+            FROM securityAlert sa
+            JOIN project p ON sa.projectId = p.uuid
+            WHERE sa.messageId = ?
+        `);
+
         messages.forEach(message => {
             const item = { ...message, isRss: false, isAlert: false };
 
             // Check if it's an RSS item
-            const rssEntry = db.prepare(`
-                SELECT r.*, f.name as feed_name, f.link as feed_link
-                FROM rss r
-                JOIN feed f ON r.feedId = f.uuid
-                WHERE r.messageId = ?
-            `).get(message.uuid);
+            const rssEntry = getRssEntryStmt.get(message.uuid);
 
             if (rssEntry) {
                 item.isRss = true;
@@ -76,12 +86,7 @@ class MessagesHandler {
             }
 
             // Check if it's a security alert
-            const alertEntry = db.prepare(`
-                SELECT sa.*, p.name as project_name, p.link as project_link
-                FROM securityAlert sa
-                JOIN project p ON sa.projectId = p.uuid
-                WHERE sa.messageId = ?
-            `).get(message.uuid);
+            const alertEntry = getAlertEntryStmt.get(message.uuid);
 
             if (alertEntry) {
                 item.isAlert = true;
@@ -140,8 +145,8 @@ class MessagesHandler {
         // Check if rss entry already exists
         const existingRss = db.prepare(`
             SELECT uuid FROM rss 
-            WHERE rss_guid = ? AND feedId = ?
-        `).get(item.guid ?? "", feedId);
+            WHERE feedId = ? AND feedId = ?
+        `).get(item.feedId ?? "", feedId);
 
         if (existingRss) {
             // Update existing rss entry
