@@ -59,7 +59,7 @@ class MessagesHandler {
 
             // Check if it's an RSS item
             const rssEntry = db.prepare(`
-                SELECT r.*, f.name as feed_name 
+                SELECT r.*, f.name as feed_name, f.link as feed_link
                 FROM rss r
                 JOIN feed f ON r.feedId = f.uuid
                 WHERE r.messageId = ?
@@ -69,11 +69,12 @@ class MessagesHandler {
                 item.isRss = true;
                 item.rss = rssEntry;
                 item.feedName = rssEntry.feed_name;
+                item.feedLink = rssEntry.feed_link;
             }
 
             // Check if it's a security alert
             const alertEntry = db.prepare(`
-                SELECT sa.*, p.name as project_name
+                SELECT sa.*, p.name as project_name, p.link as project_link
                 FROM securityAlert sa
                 JOIN project p ON sa.projectId = p.uuid
                 WHERE sa.messageId = ?
@@ -83,6 +84,7 @@ class MessagesHandler {
                 item.isAlert = true;
                 item.alert = alertEntry;
                 item.projectName = alertEntry.project_name;
+                item.projectLink = alertEntry.project_link;
             }
 
             result.push(item);
