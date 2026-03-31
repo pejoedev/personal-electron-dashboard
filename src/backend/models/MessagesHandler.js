@@ -47,6 +47,9 @@ class MessagesHandler {
             query += ' WHERE viewed = 0';
         }
 
+        // Sort by fetch_date
+        query += ' ORDER BY fetch_date DESC';
+
         // Calculate offset
         const offset = page * limit;
         query += ` LIMIT ${limit} OFFSET ${offset}`;
