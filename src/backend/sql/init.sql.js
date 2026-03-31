@@ -91,11 +91,21 @@ function templateItems() {
 
     if (count.count === 0) {
         // Insert default rssFollow item
-        const uuid = uuidv4();
+        let uuid = uuidv4();
         db.prepare(`
             INSERT INTO rssFollow (uuid, name, rssLink)
             VALUES (?, ?, ?)
         `).run(uuid, 'dimden.dev', 'https://dimden.dev/rss.xml');
+        uuid = uuidv4();
+        db.prepare(`
+            INSERT INTO rssFollow (uuid, name, rssLink)
+            VALUES (?, ?, ?)
+        `).run(uuid, 'besluiten', 'https://feeds.rijksoverheid.nl/besluiten.rss');
+        uuid = uuidv4();
+        db.prepare(`
+            INSERT INTO rssFollow (uuid, name, rssLink)
+            VALUES (?, ?, ?)
+        `).run(uuid, 'nosnieuwsopmerkelijk', 'https://feeds.nos.nl/nosnieuwsopmerkelijk');
 
         console.log('Default RSS feed added: dimden.dev');
     }
