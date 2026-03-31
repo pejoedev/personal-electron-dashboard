@@ -32,6 +32,65 @@ class MessagesHandler {
         return false;
     }
 
+    /**
+     * Fetch all items from the messages table
+     * @param {*} hideViewed - if true, hide the items where viewed == 1
+     * @param {*} limit - number of items per page (default: 20)
+     * @param {*} page - page number starting from 0 (default: 0)
+     * @returns 
+     */
+    fetchMessages(hideViewed = false, limit = 20, page = 0) {
+        // Base query to get messages
+        let query = 'SELECT * FROM message';
+
+        if (hideViewed) {
+            query += ' WHERE viewed = 0';
+        }
+
+        // Calculate offset
+        const offset = page * limit;
+        query += ` LIMIT ${limit} OFFSET ${offset}`;
+
+        const messages = db.prepare(query).all();
+        const result = [];
+
+        messages.forEach(message => {
+            const item = { ...message, isRss: false, isAlert: false };
+
+            // Check if it's an RSS item
+            const rssEntry = db.prepare(`
+                SELECT r.*, f.name as feed_name 
+                FROM rss r
+                JOIN feed f ON r.feedId = f.uuid
+                WHERE r.messageId = ?
+            `).get(message.uuid);
+
+            if (rssEntry) {
+                item.isRss = true;
+                item.rss = rssEntry;
+                item.feedName = rssEntry.feed_name;
+            }
+
+            // Check if it's a security alert
+            const alertEntry = db.prepare(`
+                SELECT sa.*, p.name as project_name
+                FROM securityAlert sa
+                JOIN project p ON sa.projectId = p.uuid
+                WHERE sa.messageId = ?
+            `).get(message.uuid);
+
+            if (alertEntry) {
+                item.isAlert = true;
+                item.alert = alertEntry;
+                item.projectName = alertEntry.project_name;
+            }
+
+            result.push(item);
+        });
+
+        return result;
+    }
+
     _addOrOverwriteMessage(item, feedId) {
         // Check if message already exists by guid and link
         const existingMessage = db.prepare(`
