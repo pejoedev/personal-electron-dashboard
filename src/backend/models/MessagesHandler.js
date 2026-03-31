@@ -121,8 +121,8 @@ class MessagesHandler {
             messageUuid = uuidv4();
             const insertMessageStmt = db.prepare(`
                 INSERT INTO message 
-                (uuid, title, link, description, publication_date, viewed)
-                VALUES (?, ?, ?, ?, ?, ?)
+                (uuid, title, link, description, publication_date, viewed, fetch_date)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             `);
             insertMessageStmt.run(
                 messageUuid,
@@ -130,7 +130,8 @@ class MessagesHandler {
                 item.link,
                 item.description,
                 item.publication_date,
-                item.viewed ? 1 : 0
+                item.viewed ? 1 : 0,
+                new Date().toISOString()
             );
         }
         // Check if rss entry already exists
