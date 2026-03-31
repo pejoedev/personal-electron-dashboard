@@ -1,4 +1,4 @@
-// V1.0.7
+// V1.0.8
 
 Table rssFollow {
   uuid TEXT [pk]
@@ -24,6 +24,7 @@ Table message {
   description TEXT
   publication_date TEXT
   viewed BOOLEAN
+  fetch_date TEXT
 }
 
 Table rss {
