@@ -209,6 +209,7 @@ function renderRssFeeds(items) {
 function createCardElement(item) {
     const card = document.createElement('div');
     card.className = item.isRss ? 'rss-card' : 'news-card';
+    card.setAttribute('data-message-id', item.uuid);
     console.log(item)
 
     if (item.isAlert) {
@@ -221,10 +222,29 @@ function createCardElement(item) {
             <div class="news-description">${escapeHtml(item.description)}</div>
             <div class="news-notes">
                 <a class="news-read" href="#report?id=${escapeHtml(item.uuid)}">View Report</a>
+                <button class="news-dismiss" type="button">Dismiss</button>
                 <p class="news-level">${escapeHtml(item.alert?.severity_level || 'Info')}</p>
                 <p class="news-timestamp">${formatDate(item.publication_date || item.fetch_date)}</p>
             </div>
         `;
+
+        // Add click handler for View Report link
+        const viewReportLink = card.querySelector('.news-read');
+        if (viewReportLink) {
+            viewReportLink.addEventListener('click', (e) => {
+                markItemViewed(item.uuid);
+            });
+        }
+
+        // Add click handler for Dismiss button
+        const dismissBtn = card.querySelector('.news-dismiss');
+        if (dismissBtn) {
+            dismissBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('[Dismiss Alert] Dismissing alert:', item.uuid);
+                markItemViewed(item.uuid);
+            });
+        }
     } else if (item.isRss) {
         // RSS card
         card.innerHTML = `
@@ -232,10 +252,30 @@ function createCardElement(item) {
             <div class="rss-description">${escapeHtml(item.description)}</div>
             <div class="rss-notes">
                 <a class="rss-read" href="${escapeHtml(item.link)}" target="_blank">Read</a>
+                <button class="rss-dismiss" type="button">Dismiss</button>
                 <a class="rss-source" href="${escapeHtml(item.feedLink)}" target="_blank">${escapeHtml(item.feedName)}</a>
                 <p class="rss-timestamp">${formatDate(item.publication_date || item.fetch_date)}</p>
             </div>
         `;
+
+        // Add click handler for Read link
+        const readLink = card.querySelector('.rss-read');
+        if (readLink) {
+            readLink.addEventListener('click', (e) => {
+                console.log('[Read Item] Marking RSS item as viewed:', item.uuid);
+                markItemViewed(item.uuid);
+            });
+        }
+
+        // Add click handler for Dismiss button
+        const dismissBtn = card.querySelector('.rss-dismiss');
+        if (dismissBtn) {
+            dismissBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('[Dismiss RSS] Dismissing RSS item:', item.uuid);
+                markItemViewed(item.uuid);
+            });
+        }
     } else {
         // Generic card fallback
         card.classList.add('generic-card');
@@ -294,6 +334,31 @@ function updatePaginationControls() {
     }
 
     console.log('[RSS Pagination] Updated controls - current page: ' + currentPage + ', total: ' + totalCount + ', max page: ' + maxPage);
+}
+
+/**
+ * Mark an item as viewed and refresh the feed
+ * @param {string} messageId - The UUID of the message to mark as viewed
+ */
+function markItemViewed(messageId) {
+    console.log('[Mark Viewed] Sending mark-item-viewed request for:', messageId);
+    
+    if (window.communicator) {
+        window.communicator.send('mark-item-viewed', {
+            messageId: messageId
+        });
+
+        // After marking, refresh the current page of RSS items
+        const state = window.rssPageState || {};
+        const currentPage = state.currentPage ?? 0;
+        
+        console.log('[Mark Viewed] Refreshing RSS feed after marking item as viewed');
+        setTimeout(() => {
+            requestRssPage(currentPage);
+        }, 300);
+    } else {
+        console.error('[Mark Viewed] Communicator not available');
+    }
 }
 
 /**

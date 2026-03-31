@@ -189,6 +189,28 @@ class MessagesHandler {
         const result = db.prepare(query).get();
         return result.count || 0;
     }
+
+    /**
+     * Mark a message as viewed
+     * @param {string} messageId - The UUID of the message to mark as viewed
+     * @returns {boolean} Whether the update was successful
+     */
+    markMessageAsViewed(messageId) {
+        try {
+            const updateStmt = db.prepare(`
+                UPDATE message 
+                SET viewed = 1
+                WHERE uuid = ?
+            `);
+            const result = updateStmt.run(messageId);
+            const success = result.changes > 0;
+            console.log(`[MessagesHandler] Marked message ${messageId} as viewed: ${success}`);
+            return success;
+        } catch (error) {
+            console.error('[MessagesHandler] Error marking message as viewed:', error);
+            return false;
+        }
+    }
 }
 
 module.exports = new MessagesHandler();

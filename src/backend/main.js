@@ -207,6 +207,24 @@ function setupCommunicationHandlers() {
             });
         }
     });
+
+    // Handle mark item as viewed requests from frontend
+    communicator.subscribe('mark-item-viewed', (data) => {
+        const messagesHandler = require('./models/MessagesHandler');
+        const messageId = data.messageId;
+
+        if (!messageId) {
+            console.error('[Main] mark-item-viewed: messageId not provided');
+            return;
+        }
+
+        try {
+            const success = messagesHandler.markMessageAsViewed(messageId);
+            console.log(`[Main] Marked message ${messageId} as viewed:`, success);
+        } catch (error) {
+            console.error('[Main] Failed to mark message as viewed:', error);
+        }
+    });
 }
 
 function initializeHooks() {

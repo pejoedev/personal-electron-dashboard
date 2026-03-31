@@ -94,6 +94,24 @@
     text-decoration: underline;
 }
 
+.rss-dismiss {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: calc(var(--radius) - 2px);
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.rss-dismiss:hover {
+    color: var(--danger-color);
+    border-color: var(--danger-color);
+    background: rgba(239, 68, 68, 0.05);
+}
+
 .rss-timestamp {
     margin: 0;
     color: var(--text-secondary);
@@ -197,6 +215,24 @@
 .news-read:hover {
     color: var(--text-primary);
     text-decoration: underline;
+}
+
+.news-dismiss {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: calc(var(--radius) - 2px);
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.news-dismiss:hover {
+    color: var(--danger-color);
+    border-color: var(--danger-color);
+    background: rgba(239, 68, 68, 0.05);
 }
 
 .news-level {
