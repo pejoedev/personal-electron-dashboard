@@ -4,6 +4,7 @@ const xml2js = require('xml2js');
 const cron = require('../models/CronScheduler');
 
 const ModuleName = "rss-setup"
+let communicator = null;
 
 function RegisterCrons() {
     // every hour
@@ -50,10 +51,29 @@ async function FetchRss() {
 
     messagesHandler.pushFetch(allChannelFeeds)
 
-    // console.log(allChannelFeeds);
-
-    // TODO: send the new data to the frontends
+    // Send the new data to the frontends
     // this means the feed items and the Settings
+    if (communicator) {
+        const hideViewed = true;
+        const limit = 20;
+        const page = 0;
+        
+        try {
+            const feeds = messagesHandler.fetchMessages(hideViewed, limit, page);
+            const totalCount = messagesHandler.getTotalMessageCount(hideViewed);
+            
+            communicator.send('rss-feed-update', {
+                feeds: feeds,
+                totalCount: totalCount,
+                currentPage: page,
+                pageSize: limit
+            });
+            
+            console.log(`[RSS Setup] Sent ${feeds.length} feeds to frontend (total: ${totalCount})`);
+        } catch (error) {
+            console.error('[RSS Setup] Failed to send RSS data to frontend:', error);
+        }
+    }
 }
 
 async function _FetchWebsite(url) {
@@ -81,7 +101,10 @@ async function _FetchWebsite(url) {
     return await parser.parseStringPromise(cleanXml);
 }
 
-function SetupRSS() {
+function SetupRSS(commInstance = null) {
+    if (commInstance) {
+        communicator = commInstance;
+    }
     RegisterCrons()
 }
 

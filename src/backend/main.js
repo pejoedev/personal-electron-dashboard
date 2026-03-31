@@ -155,7 +155,7 @@ ipcMain.on('message-from-renderer', (event, data) => {
     console.log('Main received:', data);
     // Emit to all subscribers of this message type
     if (data.eventType) {
-        communicator.emit(data.eventType, data);
+        communicator.emit(data.eventType, data.data);
     }
     // Send response back
     event.reply('message-to-renderer', { status: 'received', data: data });
@@ -175,12 +175,43 @@ app.whenReady().then(() => {
     createWindow();
     createTray();
     setupBackgroundJobs();
+    setupCommunicationHandlers();
     initializeHooks();
 });
 
+function setupCommunicationHandlers() {
+    // Handle RSS feed requests from frontend
+    communicator.subscribe('request-rss-feed', (data) => {
+        const messagesHandler = require('./models/MessagesHandler');
+        
+        const page = data.page || 0;
+        const limit = data.limit || 20;
+        const hideViewed = data.hideViewed !== undefined ? data.hideViewed : true;
+
+        try {
+            const feeds = messagesHandler.fetchMessages(hideViewed, limit, page);
+            const totalCount = messagesHandler.getTotalMessageCount(hideViewed);
+
+            communicator.send('rss-feed-update', {
+                feeds: feeds,
+                totalCount: totalCount,
+                currentPage: page,
+                pageSize: limit
+            });
+
+            console.log(`[Main] Sent ${feeds.length} feeds to frontend (total: ${totalCount}, page: ${page})`);
+        } catch (error) {
+            console.error('[Main] Failed to fetch RSS feed data:', error);
+            communicator.send('rss-feed-error', {
+                error: error.message
+            });
+        }
+    });
+}
+
 function initializeHooks() {
     setTimeout(() => {
-        SetupRSS()
+        SetupRSS(communicator)
     }, 1000)
 }
 

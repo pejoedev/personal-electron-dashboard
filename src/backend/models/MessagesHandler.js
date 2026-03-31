@@ -173,6 +173,22 @@ class MessagesHandler {
 
         return messageUuid;
     }
+
+    /**
+     * Get total count of messages in the database
+     * @param {*} hideViewed - if true, count only unviewed items
+     * @returns {number} Total count of messages
+     */
+    getTotalMessageCount(hideViewed = false) {
+        let query = 'SELECT COUNT(*) as count FROM message';
+
+        if (hideViewed) {
+            query += ' WHERE viewed = 0';
+        }
+
+        const result = db.prepare(query).get();
+        return result.count || 0;
+    }
 }
 
 module.exports = new MessagesHandler();
