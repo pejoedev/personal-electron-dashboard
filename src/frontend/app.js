@@ -19,6 +19,9 @@ window.pageInit = {
         updateLastRefresh();
         // Setup pagination after dashboard HTML is loaded
         setupPaginationControls();
+        // Request RSS feed data when dashboard is loaded
+        console.log('[Dashboard Init] Requesting RSS feed data');
+        requestRssPage(0);
     },
     analytics: () => {
         console.log('Initializing analytics page');
@@ -95,11 +98,6 @@ function setupCommunicator() {
             updatePaginationControls();
         }
     });
-
-    // Request initial RSS feed data from main process
-    setTimeout(() => {
-        requestRssPage(0);
-    }, 500);
 }
 
 
