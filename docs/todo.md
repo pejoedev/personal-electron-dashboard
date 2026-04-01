@@ -1,6 +1,5 @@
 needed for official release
 
-- being able to set/edit/delete the rssFollow table items from ui
 - a settings menu, all frontend features / settings need to be stored in localstorage, all merged / backend features in the database.
     - start minimized boolean
         Default: True
