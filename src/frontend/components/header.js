@@ -15,8 +15,6 @@ class Header {
                 <nav class="header-nav">
                     <ul>
                         <li><a href="#overview" class="nav-link" data-page="dashboard">Dashboard</a></li>
-                        <li><a href="#rss" class="nav-link" data-page="rss">RSS</a></li>
-                        <li><a href="#settings" class="nav-link" data-page="settings">Settings</a></li>
                     </ul>
                 </nav>
             </div>
