@@ -19,6 +19,9 @@ async function FetchRss() {
     const allChannelFeeds = [];
     await Promise.all(settingsHandler.rssFollow.map(async (item) => {
         let respone = await _FetchWebsite(item.rssLink)
+        if (respone == null) {
+            return;
+        }
         let responeChannel = respone.rss.channel;
         let formattedResponse = {
             formattedItems: []
@@ -57,18 +60,18 @@ async function FetchRss() {
         const hideViewed = true;
         const limit = 20;
         const page = 0;
-        
+
         try {
             const feeds = messagesHandler.fetchMessages(hideViewed, limit, page);
             const totalCount = messagesHandler.getTotalMessageCount(hideViewed);
-            
+
             communicator.send('rss-feed-update', {
                 feeds: feeds,
                 totalCount: totalCount,
                 currentPage: page,
                 pageSize: limit
             });
-            
+
             console.log(`[RSS Setup] Sent ${feeds.length} feeds to frontend (total: ${totalCount})`);
         } catch (error) {
             console.error('[RSS Setup] Failed to send RSS data to frontend:', error);
@@ -87,6 +90,7 @@ async function _FetchWebsite(url) {
 
     if (startIndex === -1) {
         console.log(`No valid RSS found in response: ${url}`)
+        return null;
     }
 
     const xmlData = data.substring(startIndex);

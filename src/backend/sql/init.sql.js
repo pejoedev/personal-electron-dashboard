@@ -112,9 +112,7 @@ function initializeDatabase() {
     }
 
     setTimeout(() => {
-        if (INSERT_DATA) {
-            templateItems()
-        }
+        templateItems()
     }, 100)
 }
 
@@ -130,27 +128,34 @@ function templateItems() {
         db.prepare(`
             INSERT INTO rssFollow (uuid, name, rssLink, deleted)
             VALUES (?, ?, ?, ?)
-        `).run(uuid, 'dimden.dev', 'https://dimden.dev/rss.xml', 0);
+        `).run(uuid, 'system', 'https://pejoedev.github.io/personal-electron-dashboard/rss', 0);
         uuid = uuidv4();
-        db.prepare(`
-            INSERT INTO rssFollow (uuid, name, rssLink, deleted)
-            VALUES (?, ?, ?, ?)
-        `).run(
-            uuid,
-            'besluiten',
-            'https://feeds.rijksoverheid.nl/besluiten.rss',
-            0
-        );
-        uuid = uuidv4();
-        db.prepare(`
-            INSERT INTO rssFollow (uuid, name, rssLink, deleted)
-            VALUES (?, ?, ?, ?)
-        `).run(
-            uuid,
-            'nosnieuwsopmerkelijk',
-            'https://feeds.nos.nl/nosnieuwsopmerkelijk',
-            0
-        );
+        if (INSERT_DATA) {
+            db.prepare(`
+                INSERT INTO rssFollow (uuid, name, rssLink, deleted)
+                VALUES (?, ?, ?, ?)
+            `).run(uuid, 'dimden.dev', 'https://dimden.dev/rss.xml', 0);
+            uuid = uuidv4();
+            db.prepare(`
+                INSERT INTO rssFollow (uuid, name, rssLink, deleted)
+                VALUES (?, ?, ?, ?)
+            `).run(
+                uuid,
+                'besluiten',
+                'https://feeds.rijksoverheid.nl/besluiten.rss',
+                0
+            );
+            uuid = uuidv4();
+            db.prepare(`
+                INSERT INTO rssFollow (uuid, name, rssLink, deleted)
+                VALUES (?, ?, ?, ?)
+            `).run(
+                uuid,
+                'nosnieuwsopmerkelijk',
+                'https://feeds.nos.nl/nosnieuwsopmerkelijk',
+                0
+            );
+        }
 
         console.log('Default RSS feed added: dimden.dev');
     }
