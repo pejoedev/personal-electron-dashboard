@@ -84,7 +84,7 @@
     <script>
         async function loadRSSFeed() {
             try {
-                const response = await fetch('./index.xml');
+                const response = await fetch('./index.rss');
                 const xmlText = await response.text();
                 const parser = new DOMParser();
                 const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
