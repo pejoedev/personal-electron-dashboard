@@ -99,6 +99,18 @@ function initializeDatabase() {
         console.error('[Migration] Error checking/adding deleted column:', error);
     }
 
+    // Migration: Initialize deletion mode setting if it doesn't exist
+    try {
+        const setting = db.prepare("SELECT value FROM userSetting WHERE key = ?").get('delete.data.on.rssfollow.delete');
+        if (!setting) {
+            console.log('[Migration] Initializing delete.data.on.rssfollow.delete setting to mode 3 (ask)...');
+            db.prepare("INSERT INTO userSetting (key, value) VALUES (?, ?)").run('delete.data.on.rssfollow.delete', '3');
+            console.log('[Migration] Successfully initialized delete.data.on.rssfollow.delete setting');
+        }
+    } catch (error) {
+        console.error('[Migration] Error initializing deletion mode setting:', error);
+    }
+
     setTimeout(() => {
         if (INSERT_DATA) {
             templateItems()

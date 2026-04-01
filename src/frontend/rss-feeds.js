@@ -139,6 +139,39 @@ function closeDeleteStrategyModal() {
 }
 
 /**
+ * Show the delete confirmation modal
+ * @param {string} feedName - The name of the feed being deleted
+ * @param {string} deletionMethod - The deletion method ('cascade' or 'soft')
+ */
+function showDeleteConfirmModal(feedName, deletionMethod) {
+    const modal = document.getElementById('delete-confirm-modal');
+    const title = document.getElementById('delete-confirm-title');
+    const message = document.getElementById('delete-confirm-message');
+
+    if (deletionMethod === 'cascade') {
+        title.textContent = 'Confirm Cascade Delete';
+        message.textContent = `You are about to permanently delete the feed "${feedName}" and all related data (feeds, RSS items, and messages). This action cannot be undone. Are you sure?`;
+    } else if (deletionMethod === 'soft') {
+        title.textContent = 'Confirm Soft Delete';
+        message.textContent = `You are about to delete the feed "${feedName}". The feed will be marked as deleted and will not receive future updates, but existing messages will be preserved. Are you sure?`;
+    }
+
+    if (modal) {
+        modal.style.display = 'block';
+    }
+}
+
+/**
+ * Close the delete confirmation modal
+ */
+function closeDeleteConfirmModal() {
+    const modal = document.getElementById('delete-confirm-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+/**
  * Submit the feed form (create or update)
  */
 function submitFeedForm() {
@@ -300,13 +333,9 @@ function showDeleteConfirm(feedId) {
         return;
     }
 
-    // Request delete preview first
-    window.communicator.send('request-rss-feed-delete-preview', {
-        uuid: feedId
-    });
-
-    // Will show confirmation after preview is received
+    // Request deletion mode setting from backend
     window.pendingDeleteFeedId = feedId;
+    window.communicator.send('get-deletion-mode', {});
 }
 
 /**
@@ -350,6 +379,45 @@ function subscribeToRssFeedsUpdates() {
     window.communicator.subscribe('rss-feed-delete-preview', (data) => {
         const preview = data.preview;
         showDeleteStrategyModal(preview);
+    });
+
+    // Handle deletion mode response
+    window.communicator.subscribe('deletion-mode-response', (data) => {
+        const deletionMode = data.deletionMode;
+        const feedId = window.pendingDeleteFeedId;
+
+        if (!feedId) {
+            console.error('[RSS Page] No pending delete feed ID');
+            return;
+        }
+
+        // Get feed name from state
+        const feeds = window.rssPageState?.feedsList || [];
+        const feed = feeds.find(f => f.uuid === feedId);
+        const feedName = feed ? feed.name : 'Unknown Feed';
+
+        if (deletionMode === 1) {
+            // Mode 1: Cascade delete - show confirmation first
+            console.log('[RSS Page] Deletion mode 1 (cascade): Showing confirmation');
+            window.pendingDeletionMethod = 'cascade';
+            window.pendingDeletionFeedName = feedName;
+            showDeleteConfirmModal(feedName, 'cascade');
+        } else if (deletionMode === 2) {
+            // Mode 2: Soft delete - show confirmation first
+            console.log('[RSS Page] Deletion mode 2 (soft): Showing confirmation');
+            window.pendingDeletionMethod = 'soft';
+            window.pendingDeletionFeedName = feedName;
+            showDeleteConfirmModal(feedName, 'soft');
+        } else if (deletionMode === 3) {
+            // Mode 3: Ask user - request preview and show modal
+            console.log('[RSS Page] Deletion mode 3 (ask): Requesting preview');
+            window.communicator.send('request-rss-feed-delete-preview', {
+                uuid: feedId
+            });
+        } else {
+            console.warn(`[RSS Page] Unknown deletion mode: ${deletionMode}`);
+            window.pendingDeleteFeedId = null;
+        }
     });
 
     // Setup delete strategy modal buttons
@@ -407,6 +475,57 @@ function subscribeToRssFeedsUpdates() {
         });
     }
 
+    // Setup delete confirmation modal buttons
+    const deleteConfirmModal = document.getElementById('delete-confirm-modal');
+    const deleteConfirmCloseBtn = document.getElementById('delete-confirm-close');
+    const deleteConfirmBtn = document.getElementById('delete-confirm-btn');
+    const deleteConfirmCancelBtn = document.getElementById('delete-confirm-cancel-btn');
+
+    if (deleteConfirmCloseBtn) {
+        deleteConfirmCloseBtn.addEventListener('click', () => {
+            closeDeleteConfirmModal();
+            window.pendingDeleteFeedId = null;
+            window.pendingDeletionMethod = null;
+            window.pendingDeletionFeedName = null;
+        });
+    }
+
+    if (deleteConfirmBtn) {
+        deleteConfirmBtn.addEventListener('click', () => {
+            if (window.pendingDeleteFeedId && window.pendingDeletionMethod) {
+                closeDeleteConfirmModal();
+                window.communicator.send('delete-rss-feed', {
+                    uuid: window.pendingDeleteFeedId,
+                    strategy: window.pendingDeletionMethod
+                });
+                window.pendingDeleteFeedId = null;
+                window.pendingDeletionMethod = null;
+                window.pendingDeletionFeedName = null;
+            }
+        });
+    }
+
+    if (deleteConfirmCancelBtn) {
+        deleteConfirmCancelBtn.addEventListener('click', () => {
+            closeDeleteConfirmModal();
+            window.pendingDeleteFeedId = null;
+            window.pendingDeletionMethod = null;
+            window.pendingDeletionFeedName = null;
+        });
+    }
+
+    // Close confirmation modal when clicking outside of it
+    if (deleteConfirmModal) {
+        window.addEventListener('click', (event) => {
+            if (event.target === deleteConfirmModal) {
+                closeDeleteConfirmModal();
+                window.pendingDeleteFeedId = null;
+                window.pendingDeletionMethod = null;
+                window.pendingDeletionFeedName = null;
+            }
+        });
+    }
+
     // Handle feed deleted
     window.communicator.subscribe('rss-feed-deleted', (data) => {
         if (data.success) {
@@ -416,6 +535,10 @@ function subscribeToRssFeedsUpdates() {
                 : `Feed marked as deleted. Messages preserved. Feed will not be updated.`;
             alert(message);
             requestRssFeedsList(); // Refresh the list
+            // Clear pending deletion variables
+            window.pendingDeleteFeedId = null;
+            window.pendingDeletionMethod = null;
+            window.pendingDeletionFeedName = null;
         }
     });
 
@@ -423,6 +546,19 @@ function subscribeToRssFeedsUpdates() {
     window.communicator.subscribe('rss-feed-error', (data) => {
         console.error('[RSS Page] Error:', data.error);
         alert(`Error: ${data.error}`);
+        window.pendingDeleteFeedId = null;
+        window.pendingDeletionMethod = null;
+        window.pendingDeletionFeedName = null;
+        closeDeleteConfirmModal();
+    });
+
+    window.communicator.subscribe('deletion-mode-error', (data) => {
+        console.error('[RSS Page] Deletion mode error:', data.error);
+        alert(`Error fetching deletion mode: ${data.error}`);
+        window.pendingDeleteFeedId = null;
+        window.pendingDeletionMethod = null;
+        window.pendingDeletionFeedName = null;
+        closeDeleteConfirmModal();
     });
 
     console.log('[RSS Page] Subscribed to updates');

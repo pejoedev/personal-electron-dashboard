@@ -408,22 +408,98 @@ function setupCommunicationHandlers() {
             }
 
             const result = rssFeedsHandler.deleteFeed(data.uuid, data.strategy);
-            communicator.send('rss-feed-deleted', {
-                result: result,
-                success: true
-            });
 
-            console.log(`[Main] Deleted RSS feed: ${data.uuid} (strategy: ${data.strategy || 'default'})`);
+            // Check if result is an ask response
+            if (result.askUser) {
+                // Return preview and ask user to choose
+                communicator.send('rss-feed-ask-deletion-method', {
+                    feedUuid: data.uuid,
+                    preview: result.preview
+                });
+                console.log(`[Main] Asking user for deletion method for feed: ${data.uuid}`);
+            } else {
+                // Deletion was performed
+                communicator.send('rss-feed-deleted', {
+                    result: result,
+                    success: true
+                });
+                console.log(`[Main] Deleted RSS feed: ${data.uuid} (method: ${result.deleteType})`);
 
-            // Refresh the feeds list after deletion
-            const feeds = rssFeedsHandler.getAllFeeds();
-            communicator.send('rss-feeds-list-update', {
-                feeds: feeds,
-                totalCount: feeds.length
-            });
+                // Refresh the feeds list after deletion
+                const feeds = rssFeedsHandler.getAllFeeds();
+                communicator.send('rss-feeds-list-update', {
+                    feeds: feeds,
+                    totalCount: feeds.length
+                });
+            }
         } catch (error) {
             console.error('[Main] Failed to delete RSS feed:', error);
             communicator.send('rss-feed-error', {
+                error: error.message
+            });
+        }
+    });
+
+    // Get deletion mode setting
+    communicator.subscribe('get-deletion-mode', (data) => {
+        try {
+            const setting = db.prepare(`
+                SELECT value FROM userSetting WHERE key = ?
+            `).get('delete.data.on.rssfollow.delete');
+
+            const deletionMode = setting ? parseInt(setting.value) : 3; // Default to 3 if not set
+
+            communicator.send('deletion-mode-response', {
+                deletionMode: deletionMode,
+                success: true
+            });
+            console.log(`[Main] Sent deletion mode: ${deletionMode}`);
+        } catch (error) {
+            console.error('[Main] Failed to get deletion mode:', error);
+            communicator.send('deletion-mode-error', {
+                error: error.message
+            });
+        }
+    });
+
+    // Set deletion mode setting
+    communicator.subscribe('set-deletion-mode', (data) => {
+        try {
+            if (data.mode === undefined || data.mode === null) {
+                communicator.send('deletion-mode-error', {
+                    error: 'Deletion mode is required'
+                });
+                return;
+            }
+
+            const mode = parseInt(data.mode);
+            if (![1, 2, 3].includes(mode)) {
+                communicator.send('deletion-mode-error', {
+                    error: 'Invalid deletion mode. Must be 1, 2, or 3'
+                });
+                return;
+            }
+
+            const stmt = db.prepare(`
+                UPDATE userSetting SET value = ? WHERE key = ?
+            `);
+            const result = stmt.run(mode.toString(), 'delete.data.on.rssfollow.delete');
+
+            if (result.changes === 0) {
+                // Setting doesn't exist, insert it
+                db.prepare(`
+                    INSERT INTO userSetting (key, value) VALUES (?, ?)
+                `).run('delete.data.on.rssfollow.delete', mode.toString());
+            }
+
+            communicator.send('deletion-mode-updated', {
+                deletionMode: mode,
+                success: true
+            });
+            console.log(`[Main] Updated deletion mode to: ${mode}`);
+        } catch (error) {
+            console.error('[Main] Failed to set deletion mode:', error);
+            communicator.send('deletion-mode-error', {
                 error: error.message
             });
         }

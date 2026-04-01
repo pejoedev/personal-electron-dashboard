@@ -116,12 +116,13 @@ class RSSFeedsHandler {
     /**
      * Delete an RSS feed subscription
      * Respects the "delete.data.on.rssfollow.delete" setting if no strategy is provided
-     * - If true or strategy='cascade': cascade delete all related feeds, RSS items, and messages
-     * - If false or strategy='soft': soft delete by marking as deleted
+     * Mode 1: Cascade delete all related feeds, RSS items, and messages
+     * Mode 2: Soft delete by marking as deleted
+     * Mode 3: Ask user (returns ask response with preview)
      * 
      * @param {string} uuid - The UUID of the RSS feed to delete
      * @param {string} strategy - Optional deletion strategy: 'cascade' or 'soft' (overrides user setting)
-     * @returns {Object} Result object with deletion details
+     * @returns {Object} Result object with deletion details or ask response
      */
     deleteFeed(uuid, strategy = null) {
         const feed = this.getFeedById(uuid);
@@ -129,27 +130,46 @@ class RSSFeedsHandler {
             throw new Error(`RSS feed with UUID ${uuid} not found`);
         }
 
-        // Determine deletion strategy
-        let shouldCascadeDelete;
+        // If strategy is provided, use it directly
         if (strategy) {
-            // Use provided strategy
-            shouldCascadeDelete = strategy === 'cascade';
-        } else {
-            // Fall back to user setting
-            const settingStmt = db.prepare(`
-                SELECT value FROM userSetting WHERE key = ?
-            `);
-            const setting = settingStmt.get('delete.data.on.rssfollow.delete');
-            shouldCascadeDelete = setting && setting.value === 'true';
+            console.log(`[RSSFeedsHandler] Deleting feed ${uuid}, strategy: ${strategy}`);
+            try {
+                if (strategy === 'cascade') {
+                    return this._cascadeDeleteFeed(uuid);
+                } else if (strategy === 'soft') {
+                    return this._softDeleteFeed(uuid);
+                } else {
+                    throw new Error(`Invalid strategy: ${strategy}`);
+                }
+            } catch (error) {
+                console.error('[RSSFeedsHandler] Failed to delete RSS feed:', error);
+                throw error;
+            }
         }
 
-        console.log(`[RSSFeedsHandler] Deleting feed ${uuid}, strategy: ${shouldCascadeDelete ? 'cascade' : 'soft'}`);
+        // Otherwise, check the deletion mode setting
+        const settingStmt = db.prepare(`
+            SELECT value FROM userSetting WHERE key = ?
+        `);
+        const setting = settingStmt.get('delete.data.on.rssfollow.delete');
+        const deletionMode = setting ? parseInt(setting.value) : 3; // Default to ask mode if not set
+
+        console.log(`[RSSFeedsHandler] Deleting feed ${uuid}, deletion mode: ${deletionMode}`);
 
         try {
-            if (shouldCascadeDelete) {
+            if (deletionMode === 1) {
+                // Mode 1: Cascade delete
                 return this._cascadeDeleteFeed(uuid);
-            } else {
+            } else if (deletionMode === 2) {
+                // Mode 2: Soft delete
                 return this._softDeleteFeed(uuid);
+            } else if (deletionMode === 3) {
+                // Mode 3: Ask user - return preview
+                return this._askDeleteFeed(uuid);
+            } else {
+                // Invalid mode, default to ask
+                console.warn(`[RSSFeedsHandler] Invalid deletion mode ${deletionMode}, defaulting to ask`);
+                return this._askDeleteFeed(uuid);
             }
         } catch (error) {
             console.error('[RSSFeedsHandler] Failed to delete RSS feed:', error);
@@ -250,6 +270,19 @@ class RSSFeedsHandler {
 
         console.log(`[RSSFeedsHandler] Soft deleted feed ${uuid}`);
         return result;
+    }
+
+    /**
+     * Ask delete - returns deletion preview and asks user to choose strategy
+     * Used when deletion mode is set to 3 (ask)
+     * @private
+     */
+    _askDeleteFeed(uuid) {
+        const preview = this.getDeletePreview(uuid);
+        return {
+            askUser: true,
+            preview: preview
+        };
     }
 
     /**
