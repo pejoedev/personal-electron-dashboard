@@ -25,11 +25,6 @@ jobs:
       - name: Build for Linux
         run: npm run build:linux
 
-      - name: Generate version.json
-        run: |
-          mkdir -p docs
-          echo "{\"releasedVersion\": \"${{ github.event.release.tag_name }}\"}" > docs/version.json
-
       - name: Upload release assets
         uses: softprops/action-gh-release@v1
         with:
