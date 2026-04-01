@@ -1,0 +1,170 @@
+<link rel="stylesheet" href="styles/dashboard.css" />
+<div id="entire-dash" class="content-section">
+    <section id="rss-panel">
+        <div id="rss-feed" class="cards-grid">
+            <!-- Dynamic cards are rendered here by renderRssFeeds() in app.js -->
+            <!-- Static test cards below are preserved during rendering (data-static="true") -->
+
+        </div>
+        <!-- RSS Feed Pagination Controls -->
+        <div class="pagination-wrapper">
+            <div id="rss-pagination" class="rss-pagination">
+                <button id="rss-prev-btn" class="pagination-btn prev-btn">← Previous</button>
+                <span id="rss-page-info" class="page-info">Page 1 of 1</span>
+                <button id="rss-next-btn" class="pagination-btn next-btn">Next →</button>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Cards Grid -->
+    <section class="cards-grid">
+        <!-- <div class="card status-card">
+            <div class="card-header">
+                <div class="card-icon">🖥️</div>
+                <h3>Status Report</h3>
+            </div>
+            <div class="application-list">
+                <div class="server-status">
+                    <div class="status-indicator">
+                        <span class="status-dot online"></span>
+                        <span class="server-name">Main API</span>
+                    </div>
+                    <div class="status-details">
+                        <span class="status-badge online">Online</span>
+                        <span class="status-time">10m ago</span>
+                    </div>
+                </div>
+                <div class="server-status">
+                    <div class="status-indicator">
+                        <span class="status-dot offline"></span>
+                        <span class="server-name">MQTT Broker</span>
+                    </div>
+                    <div class="status-details">
+                        <span class="status-badge offline">Offline</span>
+                        <span class="status-time">3m ago</span>
+                    </div>
+                </div>
+                <div class="server-status">
+                    <div class="status-indicator">
+                        <span class="status-dot online"></span>
+                        <span class="server-name">2nd API</span>
+                    </div>
+                    <div class="status-details">
+                        <span class="status-badge online">Online</span>
+                        <span class="status-time">5h ago</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">⚡</div>
+            <h3>Performance</h3>
+            <p class="card-number">98%</p>
+            <p class="card-description">System health</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">👥</div>
+            <h3>Users</h3>
+            <p class="card-number">127</p>
+            <p class="card-description">Total registered</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">💾</div>
+            <h3>Storage</h3>
+            <p class="card-number">256GB</p>
+            <p class="card-description">Used space</p>
+        </div> -->
+        <div class="card status-card">
+            <div class="card-header">
+                <div class="card-icon">🖥️</div>
+                <h3>Todo</h3>
+            </div>
+            <div class="application-list">
+                <div class="server-status">
+                    <div class="status-indicator">
+                        <span class="status-dot online"></span>
+                        <span class="server-name">RSS Reader</span>
+                    </div>
+                    <div class="status-details">
+                        <span class="status-badge online">Completed</span>
+                    </div>
+                </div>
+                <div class="server-status">
+                    <div class="status-indicator">
+                        <span class="status-dot offline"></span>
+                        <span class="server-name">Server Status sidepanel</span>
+                    </div>
+                    <div class="status-details">
+                        <span class="status-badge offline">In development</span>
+                    </div>
+                </div>
+                <div class="server-status">
+                    <div class="status-indicator">
+                        <span class="status-dot offline"></span>
+                        <span class="server-name">Security Alerts</span>
+                    </div>
+                    <div class="status-details">
+                        <span class="status-badge offline">In development</span>
+                    </div>
+                </div>
+                <div class="server-status">
+                    <div class="status-indicator">
+                        <span class="status-dot offline"></span>
+                        <span class="server-name">RSS Channel Info viewer</span>
+                    </div>
+                    <div class="status-details">
+                        <span class="status-badge offline">In development</span>
+                    </div>
+                </div>
+                <div class="server-status">
+                    <div class="status-indicator">
+                        <span class="status-dot offline"></span>
+                        <span class="server-name">RSS feed for this app</span>
+                    </div>
+                    <div class="status-details">
+                        <span class="status-badge offline">In development</span>
+                    </div>
+                </div>
+                <div class="server-status">
+                    <div class="status-indicator">
+                        <span class="status-dot offline"></span>
+                        <span class="server-name">Update Checker</span>
+                    </div>
+                    <div class="status-details">
+                        <span class="status-badge offline">In development</span>
+                    </div>
+                </div>
+                <div class="server-status">
+                    <div class="status-indicator">
+                        <span class="status-dot offline"></span>
+                        <span class="server-name">A force fetch RSS button & refresh UI button</span>
+                    </div>
+                    <div class="status-details">
+                        <span class="status-badge offline">In development</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card status-card">
+            <div class="card-header">
+                <div class="card-icon">🗒️</div>
+                <h3>Known bugs</h3>
+            </div>
+            <div class="server-status">
+                <div class="status-indicator">
+                    <span class="status-dot offline"></span>
+                    <span class="server-name">"Navigation with back key (on mouse) doesn't send you back to /messages if
+                        you are reading fullscreen.</span>
+                </div>
+                <div class="status-details">
+                    <span class="status-badge offline">In development</span>
+                </div>
+            </div>
+        </div>
+
+    </section>
+</div>

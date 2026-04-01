@@ -1,0 +1,420 @@
+/* ==================== Settings Page ==================== */
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+#entire-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 1rem;
+}
+
+.settings-header {
+    margin-bottom: 1rem;
+}
+
+.settings-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+}
+
+.settings-header p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* ==================== Settings Sections ==================== */
+
+.settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.section-icon {
+    font-size: 1.5rem;
+}
+
+.section-title h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+/* ==================== Settings Card ==================== */
+
+.settings-card {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* ==================== Individual Settings ==================== */
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 0;
+}
+
+.setting-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.setting-label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    user-select: none;
+}
+
+.setting-description {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.setting-hint {
+    font-size: 0.75rem;
+    color: var(--warning-color);
+    font-style: italic;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.setting-control {
+    display: flex;
+    align-items: center;
+}
+
+/* ==================== Toggle Switch ==================== */
+
+.toggle-switch {
+    display: none;
+}
+
+.toggle-label {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+    background-color: var(--border-color);
+    border-radius: 13px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    flex-shrink: 0;
+}
+
+.toggle-label::after {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background-color: var(--surface-color);
+    top: 2px;
+    left: 2px;
+    transition: left 0.3s ease;
+}
+
+.toggle-switch:checked + .toggle-label {
+    background-color: var(--primary-color);
+}
+
+.toggle-switch:checked + .toggle-label::after {
+    left: 24px;
+}
+
+.toggle-switch:hover + .toggle-label {
+    filter: brightness(1.1);
+}
+
+.toggle-switch:disabled + .toggle-label {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ==================== Select Input ==================== */
+
+.select-control {
+    position: relative;
+    width: 100%;
+    max-width: 250px;
+}
+
+.select-input {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 100%;
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
+    background-color: var(--surface-color);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.select-input:hover {
+    border-color: var(--primary-color);
+    background-color: var(--surface-color);
+}
+
+.select-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.select-arrow {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+/* ==================== Dividers ==================== */
+
+.divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 0;
+}
+
+/* ==================== Conditional Settings ==================== */
+
+.conditional-setting {
+    transition: all 0.3s ease;
+    opacity: 1;
+}
+
+.conditional-setting[style*="display: none"] {
+    opacity: 0;
+}
+
+/* ==================== Delete Behavior Info ==================== */
+
+.delete-behavior-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 1rem;
+}
+
+.info-item {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(37, 99, 235, 0.05);
+    border-left: 3px solid var(--primary-color);
+    border-radius: calc(var(--radius) - 2px);
+}
+
+.info-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.info-content {
+    flex: 1;
+}
+
+.info-content h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    color: var(--text-primary);
+}
+
+.info-content p {
+    font-size: 0.8rem;
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+/* ==================== Settings Actions ==================== */
+
+.settings-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.settings-actions .btn {
+    padding: 0.875rem 1.75rem;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.settings-actions .btn-primary {
+    min-width: 120px;
+}
+
+.settings-actions .btn-secondary {
+    min-width: 140px;
+}
+
+/* ==================== Responsive Design ==================== */
+
+@media (max-width: 768px) {
+    #entire-settings {
+        gap: 1.5rem;
+        padding: 1rem;
+    }
+
+    .settings-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .settings-header p {
+        font-size: 0.9rem;
+    }
+
+    .section-title h2 {
+        font-size: 1.1rem;
+    }
+
+    .section-icon {
+        font-size: 1.25rem;
+    }
+
+    .settings-card {
+        padding: 1rem;
+    }
+
+    .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .setting-control {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .select-control {
+        max-width: 100%;
+    }
+
+    .select-input {
+        width: 100%;
+    }
+
+    .delete-behavior-info {
+        gap: 0.75rem;
+    }
+
+    .info-item {
+        padding: 0.5rem;
+    }
+
+    .info-content h4 {
+        font-size: 0.85rem;
+    }
+
+    .info-content p {
+        font-size: 0.75rem;
+    }
+
+    .settings-actions {
+        flex-direction: column;
+    }
+
+    .settings-actions .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    #entire-settings {
+        gap: 1rem;
+        padding: 0.75rem;
+    }
+
+    .settings-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .settings-card {
+        padding: 0.75rem;
+    }
+
+    .setting-item {
+        padding: 0.75rem 0;
+    }
+
+    .divider {
+        margin: 0;
+    }
+
+    .setting-label {
+        font-size: 0.95rem;
+    }
+
+    .setting-description {
+        font-size: 0.8rem;
+    }
+
+    .section-title h2 {
+        font-size: 1rem;
+    }
+
+    .section-icon {
+        font-size: 1.1rem;
+    }
+}

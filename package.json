@@ -13,7 +13,7 @@
     "email": "jondevpet@gmail.com"
   },
   "type": "commonjs",
-  "main": "src/main.js",
+  "main": "src/backend/main.js",
   "build": {
     "appId": "com.example.personal-electron-dashboard",
     "productName": "Personal Dashboard",
@@ -24,7 +24,7 @@
       "package.json"
     ],
     "extraMetadata": {
-      "main": "src/main.js"
+      "main": "src/backend/main.js"
     },
     "directories": {
       "buildResources": "assets"
@@ -45,8 +45,14 @@
     "build:linux": "electron-builder --linux"
   },
   "devDependencies": {
+    "@electron/rebuild": "^4.0.3",
     "electron": "^41.0.0",
     "electron-builder": "^26.8.1",
     "nodemon": "^3.1.14"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.8.0",
+    "uuid": "^13.0.0",
+    "xml2js": "^0.6.2"
   }
 }

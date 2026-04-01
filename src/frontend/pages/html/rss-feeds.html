@@ -1,0 +1,81 @@
+<link rel="stylesheet" href="styles/rss-feeds.css" />
+<div id="rss-feeds-page" class="content-section">
+    <section id="rss-feeds-header" class="section-header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h2>RSS Feed Subscriptions</h2>
+                <p>Manage your RSS feed sources</p>
+            </div>
+            <button id="add-feed-btn" class="btn btn-primary">+ Add Feed</button>
+        </div>
+    </section>
+
+    <!-- RSS Feeds List -->
+    <section id="rss-feeds-content" class="feeds-section">
+        <div id="feeds-list" class="feeds-list">
+            <!-- Feeds will be rendered here -->
+        </div>
+    </section>
+
+    <!-- Feed Modal -->
+    <div id="feed-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Add New RSS Feed</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="feed-form" class="feed-form">
+                <input type="hidden" id="feed-uuid" />
+                <div class="form-group">
+                    <label for="feed-name">Feed Name *</label>
+                    <input type="text" id="feed-name" placeholder="e.g., Tech News" required />
+                </div>
+                <div class="form-group">
+                    <label for="feed-rss-link">RSS Feed URL *</label>
+                    <input type="url" id="feed-rss-link" placeholder="https://example.com/feed.xml" required />
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="submit-feed-btn" class="btn btn-primary">Add Feed</button>
+                    <button type="button" id="cancel-feed-btn" class="btn btn-secondary">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Strategy Modal -->
+    <div id="delete-strategy-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="delete-strategy-title">Delete Feed</h2>
+                <button class="modal-close" id="delete-strategy-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="delete-strategy-info"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="delete-cascade-btn" class="btn btn-danger">Delete Everything
+                    (Cascade)</button>
+                <button type="button" id="delete-soft-btn" class="btn btn-secondary">Keep Messages (Soft
+                    Delete)</button>
+                <button type="button" id="delete-cancel-btn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal (for automatic deletion modes) -->
+    <div id="delete-confirm-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="delete-confirm-title">Confirm Deletion</h2>
+                <button class="modal-close" id="delete-confirm-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="delete-confirm-message"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="delete-confirm-btn" class="btn btn-danger">Yes, Delete</button>
+                <button type="button" id="delete-confirm-cancel-btn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
