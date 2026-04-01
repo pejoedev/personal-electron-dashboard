@@ -39,4 +39,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
             }
         };
     },
+
+    // Get local version and app info
+    getVersion: () => ipcRenderer.invoke('get-version'),
+
+    // Check for updates from GitHub releases
+    checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
 });

@@ -49,6 +49,7 @@ function initializeSettings() {
     setupConditionalSettingsLogic();
     attachSettingsEventListeners();
     loadSettingsFromStorage();
+    initializeVersionCheck();
 }
 
 /**
@@ -261,4 +262,166 @@ function subscribeToSettingsUpdates() {
         // Reload settings from storage
         loadSettingsFromStorage();
     });
+}
+
+/**
+ * Initialize version checking functionality
+ */
+function initializeVersionCheck() {
+    // Check if versionManager is available
+    if (typeof versionManager === 'undefined') {
+        console.warn('[Settings] VersionManager not loaded');
+        return;
+    }
+
+    // Load initial version info
+    loadLocalVersionInfo();
+    
+    // Set up event listeners
+    attachVersionCheckEventListeners();
+    
+    // Auto-check for updates on page load
+    checkForUpdatesAuto();
+}
+
+/**
+ * Load and display local version information
+ */
+async function loadLocalVersionInfo() {
+    try {
+        const versionInfo = await window.electronAPI.getVersion();
+        const versionDisplay = document.getElementById('local-version-display');
+        if (versionDisplay) {
+            versionDisplay.textContent = versionInfo.local;
+        }
+        console.log('[Settings] Local version loaded:', versionInfo.local);
+    } catch (error) {
+        console.error('[Settings] Error loading local version:', error);
+        const versionDisplay = document.getElementById('local-version-display');
+        if (versionDisplay) {
+            versionDisplay.textContent = 'Error loading version';
+        }
+    }
+}
+
+/**
+ * Attach event listeners for version check functionality
+ */
+function attachVersionCheckEventListeners() {
+    const checkBtn = document.getElementById('check-updates-btn');
+    const retryBtn = document.getElementById('retry-check-btn');
+
+    if (checkBtn) {
+        checkBtn.addEventListener('click', checkForUpdates);
+    }
+
+    if (retryBtn) {
+        retryBtn.addEventListener('click', checkForUpdates);
+    }
+}
+
+/**
+ * Check for updates automatically on page load
+ */
+async function checkForUpdatesAuto() {
+    // Only check if versionManager is available
+    if (typeof versionManager === 'undefined') {
+        return;
+    }
+
+    try {
+        const result = await versionManager.checkForUpdates();
+        displayUpdateStatus(result);
+    } catch (error) {
+        console.warn('[Settings] Auto-check for updates failed:', error);
+    }
+}
+
+/**
+ * Check for updates when user clicks button
+ */
+async function checkForUpdates() {
+    const checkBtn = document.getElementById('check-updates-btn');
+    if (checkBtn) {
+        checkBtn.disabled = true;
+        checkBtn.textContent = 'Checking...';
+    }
+
+    try {
+        const result = await versionManager.checkForUpdates();
+        displayUpdateStatus(result);
+    } catch (error) {
+        console.error('[Settings] Error checking for updates:', error);
+        showUpdateError('Failed to check for updates. Please try again later.');
+    } finally {
+        if (checkBtn) {
+            checkBtn.disabled = false;
+            checkBtn.textContent = 'Check for Updates';
+        }
+    }
+}
+
+/**
+ * Display update status based on check result
+ */
+function displayUpdateStatus(result) {
+    const latestDisplay = document.getElementById('latest-version-display');
+    const availableContainer = document.getElementById('update-available');
+    const currentContainer = document.getElementById('update-current');
+    const errorContainer = document.getElementById('update-error');
+
+    // Hide all containers first
+    if (availableContainer) availableContainer.style.display = 'none';
+    if (currentContainer) currentContainer.style.display = 'none';
+    if (errorContainer) errorContainer.style.display = 'none';
+
+    if (result.error) {
+        // Error occurred
+        showUpdateError(result.message || 'Could not check for updates');
+        if (latestDisplay) latestDisplay.textContent = 'Unknown';
+        return;
+    }
+
+    // Update latest version display
+    if (latestDisplay) {
+        latestDisplay.textContent = result.latest;
+    }
+
+    if (result.hasUpdate) {
+        // New version available
+        if (availableContainer) {
+            availableContainer.style.display = 'block';
+            const downloadBtn = availableContainer.querySelector('#download-update-btn');
+            if (downloadBtn && result.releaseUrl) {
+                downloadBtn.href = result.releaseUrl;
+            }
+        }
+        console.log('[Settings] Update available:', result.latest);
+    } else {
+        // User is on latest version
+        if (currentContainer) {
+            currentContainer.style.display = 'block';
+        }
+        console.log('[Settings] You are on the latest version');
+    }
+}
+
+/**
+ * Show update error message
+ */
+function showUpdateError(message) {
+    const errorContainer = document.getElementById('update-error');
+    const errorMessage = document.getElementById('update-error-message');
+    const availableContainer = document.getElementById('update-available');
+    const currentContainer = document.getElementById('update-current');
+
+    if (availableContainer) availableContainer.style.display = 'none';
+    if (currentContainer) currentContainer.style.display = 'none';
+    
+    if (errorContainer) {
+        if (errorMessage) {
+            errorMessage.textContent = message;
+        }
+        errorContainer.style.display = 'block';
+    }
 }

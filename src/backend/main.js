@@ -4,6 +4,7 @@ const fs = require('fs');
 const cron = require('./models/CronScheduler');
 const Communicator = require('./models/Communicator');
 const { db, initializeDatabase } = require('./sql/init.sql');
+const packageInfo = require('../../package.json');
 
 initializeDatabase();
 
@@ -182,6 +183,30 @@ ipcMain.on('message-from-renderer', (event, data) => {
 ipcMain.handle('get-dashboard-data', async (event, args) => {
     // Replace with actual data fetching logic
     return { data: 'Dashboard data from main process', timestamp: new Date() };
+});
+
+ipcMain.handle('get-version', async () => {
+    return {
+        local: app.getVersion() || packageInfo.version,
+        appName: packageInfo.name
+    };
+});
+
+ipcMain.handle('check-for-updates', async () => {
+    try {
+        const response = await fetch('https://api.github.com/repos/pejoedev/personal-electron-dashboard/releases/latest');
+        if (!response.ok) throw new Error('Failed to fetch releases');
+        
+        const data = await response.json();
+        return {
+            latest: data.tag_name.replace(/^v/, ''), // Remove 'v' prefix if present
+            releaseUrl: data.html_url,
+            publishedAt: data.published_at
+        };
+    } catch (error) {
+        console.error('[Main] Error checking for updates:', error);
+        return null;
+    }
 });
 
 ipcMain.on('pong-from-renderer', (event, data) => {

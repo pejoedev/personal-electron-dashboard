@@ -1,8 +1,9 @@
 name: Build and Release
 
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   build:
@@ -14,6 +15,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG=${{ github.ref }}
+          VERSION=${TAG#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Update package.json version
+        run: |
+          npm version ${{ steps.version.outputs.version }} --no-git-tag-version
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -24,11 +37,6 @@ jobs:
 
       - name: Build for Linux
         run: npm run build:linux
-
-      - name: Generate version.json
-        run: |
-          mkdir -p docs
-          echo "{\"releasedVersion\": \"${{ github.event.release.tag_name }}\"}" > docs/version.json
 
       - name: Upload release assets
         uses: softprops/action-gh-release@v1
