@@ -8,11 +8,11 @@
  */
 function initializeSettings() {
     console.log('[Settings] Initializing settings page');
-    
+
     setupConditionalSettingsLogic();
     attachSettingsEventListeners();
     loadSettingsFromStorage();
-    
+
     console.log('[Settings] Settings page initialized');
 }
 
@@ -27,7 +27,7 @@ function setupConditionalSettingsLogic() {
     if (hideDismissCheckbox) {
         hideDismissCheckbox.addEventListener('change', (e) => {
             console.log('[Settings] Hide dismiss button toggled:', e.target.checked);
-            
+
             // Show conditional setting only if dismiss button is visible (not hidden)
             if (!e.target.checked) {
                 conditionalSetting.style.display = 'block';
@@ -65,7 +65,7 @@ function attachSettingsEventListeners() {
  */
 function loadSettingsFromStorage() {
     console.log('[Settings] Loading settings from storage');
-    
+
     // Frontend settings from localStorage
     const startMinimized = localStorage.getItem('start.minimized') === 'true';
     const fullscreenArticle = localStorage.getItem('rss.fullscreen.article') === 'true';
