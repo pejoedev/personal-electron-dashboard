@@ -308,6 +308,84 @@
     min-width: 140px;
 }
 
+/* ==================== Version Management ==================== */
+
+.version-text {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 0.95rem;
+}
+
+.update-status-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.update-available,
+.update-current,
+.update-error {
+    width: 100%;
+}
+
+.update-notification {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius);
+    background-color: var(--bg-secondary);
+    border-left: 4px solid var(--primary-color);
+}
+
+.update-notification.success {
+    border-left-color: var(--success-color);
+    background-color: rgba(76, 175, 80, 0.1);
+}
+
+.update-notification.error {
+    border-left-color: var(--danger-color);
+    background-color: rgba(244, 67, 54, 0.1);
+}
+
+.update-icon {
+    font-size: 1.5rem;
+    min-width: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.update-info {
+    flex: 1;
+}
+
+.update-info h4 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.update-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.btn.btn-small {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    min-width: auto;
+}
+
+#check-updates-btn {
+    width: auto;
+    padding: 0.75rem 1.5rem;
+}
+
 /* ==================== Responsive Design ==================== */
 
 @media (max-width: 768px) {
@@ -416,5 +494,17 @@
 
     .section-icon {
         font-size: 1.1rem;
+    }
+
+    .version-text {
+        font-size: 0.9rem;
+    }
+
+    .update-notification {
+        width: 100%;
+    }
+
+    .update-notification.success {
+        padding: 1rem;
     }
 }

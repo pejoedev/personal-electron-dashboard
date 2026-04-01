@@ -148,6 +148,80 @@
         </div>
     </section>
 
+    <!-- About Section -->
+    <section class="settings-section">
+        <div class="section-title">
+            <span class="section-icon">ℹ️</span>
+            <h2>About</h2>
+        </div>
+
+        <div class="settings-card">
+            <div class="setting-item">
+                <div class="setting-content">
+                    <label class="setting-label">App Version</label>
+                    <p class="setting-description">Current version installed on your system</p>
+                </div>
+                <div class="setting-control">
+                    <span id="local-version-display" class="version-text">Loading...</span>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="setting-item">
+                <div class="setting-content">
+                    <label class="setting-label">Latest Version</label>
+                    <p class="setting-description">Most recent version available on GitHub</p>
+                </div>
+                <div class="setting-control">
+                    <span id="latest-version-display" class="version-text">Checking...</span>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div id="update-status-container" class="update-status-container">
+                <div id="update-available" class="update-available" style="display: none;">
+                    <div class="update-notification">
+                        <span class="update-icon">🆕</span>
+                        <div class="update-info">
+                            <h4>Update Available</h4>
+                            <p>A new version is available for download</p>
+                        </div>
+                        <a id="download-update-btn" href="#" target="_blank" class="btn btn-small btn-primary">Download</a>
+                    </div>
+                </div>
+
+                <div id="update-current" class="update-current" style="display: none;">
+                    <div class="update-notification success">
+                        <span class="update-icon">✓</span>
+                        <div class="update-info">
+                            <h4>Up to Date</h4>
+                            <p>You are running the latest version</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="update-error" class="update-error" style="display: none;">
+                    <div class="update-notification error">
+                        <span class="update-icon">⚠️</span>
+                        <div class="update-info">
+                            <h4>Unable to Check Updates</h4>
+                            <p id="update-error-message">Could not check for updates. Please try again later.</p>
+                        </div>
+                        <button id="retry-check-btn" class="btn btn-small btn-secondary">Retry</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="setting-item">
+                <button id="check-updates-btn" class="btn btn-secondary">Check for Updates</button>
+            </div>
+        </div>
+    </section>
+
     <!-- Settings Actions -->
     <section class="settings-actions">
         <button class="btn btn-primary" id="save-settings">Save Settings</button>
