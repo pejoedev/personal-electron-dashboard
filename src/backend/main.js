@@ -15,7 +15,16 @@ let tray = null;
 let communicator = new Communicator();
 
 const createWindow = () => {
-    // Create the browser window (start hidden)
+    // Read start minimized setting from database
+    let startMinimized = false;
+    try {
+        const settingValue = db.prepare('SELECT value FROM userSetting WHERE key = ?').get('start.minimized');
+        startMinimized = settingValue?.value === 'true';
+    } catch (error) {
+        console.error('[Window] Error reading start minimized setting:', error);
+    }
+
+    // Create the browser window
     mainWindow = new BrowserWindow({
         width: 1920,
         height: 1080,
@@ -41,6 +50,15 @@ const createWindow = () => {
 
     // Open DevTools in development (comment out for production)
     // mainWindow.webContents.openDevTools();
+
+    // Show window based on start minimized setting
+    mainWindow.webContents.on('did-finish-load', () => {
+        if (startMinimized) {
+            mainWindow.minimize();
+        } else {
+            mainWindow.show();
+        }
+    });
 
     // Handle minimize to tray
     mainWindow.on('minimize', (event) => {
@@ -500,6 +518,53 @@ function setupCommunicationHandlers() {
         } catch (error) {
             console.error('[Main] Failed to set deletion mode:', error);
             communicator.send('deletion-mode-error', {
+                error: error.message
+            });
+        }
+    });
+
+    // Save settings (from frontend settings page)
+    communicator.subscribe('save-settings', (data) => {
+        try {
+            // Save delete mode if provided
+            if (data.delete_mode !== undefined) {
+                const mode = parseInt(data.delete_mode);
+                if ([1, 2, 3].includes(mode)) {
+                    const stmt = db.prepare(`
+                        UPDATE userSetting SET value = ? WHERE key = ?
+                    `);
+                    const result = stmt.run(mode.toString(), 'delete.data.on.rssfollow.delete');
+
+                    if (result.changes === 0) {
+                        db.prepare(`
+                            INSERT INTO userSetting (key, value) VALUES (?, ?)
+                        `).run('delete.data.on.rssfollow.delete', mode.toString());
+                    }
+                }
+            }
+
+            // Save start minimized if provided
+            if (data.start_minimized !== undefined) {
+                const startMinimized = data.start_minimized === true || data.start_minimized === 'true';
+                const stmt = db.prepare(`
+                    UPDATE userSetting SET value = ? WHERE key = ?
+                `);
+                const result = stmt.run(startMinimized.toString(), 'start.minimized');
+
+                if (result.changes === 0) {
+                    db.prepare(`
+                        INSERT INTO userSetting (key, value) VALUES (?, ?)
+                    `).run('start.minimized', startMinimized.toString());
+                }
+            }
+
+            // Send success response
+            communicator.send('settings-saved', {
+                success: true
+            });
+        } catch (error) {
+            console.error('[Main] Error saving settings:', error);
+            communicator.send('settings-save-error', {
                 error: error.message
             });
         }

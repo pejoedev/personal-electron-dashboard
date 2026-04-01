@@ -4,16 +4,51 @@
  */
 
 /**
+ * Show a notification toast
+ * @param {string} message - The message to display
+ * @param {string} type - Type of notification: 'success', 'error', 'info'
+ * @param {number} duration - How long to show the notification in ms
+ */
+function showNotification(message, type = 'success', duration = 3000) {
+    // Remove existing notification if present
+    const existing = document.getElementById('settings-notification');
+    if (existing) {
+        existing.remove();
+    }
+
+    const notification = document.createElement('div');
+    notification.id = 'settings-notification';
+    notification.className = `settings-notification settings-notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        padding: 1rem 1.5rem;
+        background-color: ${type === 'success' ? 'var(--success-color)' : type === 'error' ? 'var(--danger-color)' : 'var(--primary-color)'};
+        color: white;
+        border-radius: var(--radius);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+        font-weight: 500;
+    `;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, duration);
+}
+
+/**
  * Initialize the settings page
  */
 function initializeSettings() {
-    console.log('[Settings] Initializing settings page');
-
     setupConditionalSettingsLogic();
     attachSettingsEventListeners();
     loadSettingsFromStorage();
-
-    console.log('[Settings] Settings page initialized');
 }
 
 /**
@@ -26,8 +61,6 @@ function setupConditionalSettingsLogic() {
 
     if (hideDismissCheckbox) {
         hideDismissCheckbox.addEventListener('change', (e) => {
-            console.log('[Settings] Hide dismiss button toggled:', e.target.checked);
-
             // Show conditional setting only if dismiss button is visible (not hidden)
             if (!e.target.checked) {
                 conditionalSetting.style.display = 'block';
@@ -54,18 +87,18 @@ function attachSettingsEventListeners() {
     }
 
     if (resetBtn) {
-        resetBtn.addEventListener('click', resetSettingsToDefaults);
+        resetBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to reset all settings to their defaults?')) {
+                resetSettingsToDefaults();
+            }
+        });
     }
-
-    console.log('[Settings] Event listeners attached');
 }
 
 /**
  * Load settings from localstorage and database
  */
 function loadSettingsFromStorage() {
-    console.log('[Settings] Loading settings from storage');
-
     // Frontend settings from localStorage
     const startMinimized = localStorage.getItem('start.minimized') === 'true';
     const fullscreenArticle = localStorage.getItem('rss.fullscreen.article') === 'true';
@@ -90,83 +123,129 @@ function loadSettingsFromStorage() {
     if (hideDismissEl) hideDismissEl.checked = hideDismiss;
     if (removeOnReadEl) removeOnReadEl.checked = removeOnRead;
     if (deleteModeEl) deleteModeEl.value = deleteMode;
-
-    console.log('[Settings] Settings loaded:', {
-        startMinimized,
-        fullscreenArticle,
-        fullscreenSource,
-        hideDismiss,
-        removeOnRead,
-        deleteMode
-    });
 }
 
 /**
  * Save all settings to storage
  */
 function saveSettings() {
-    console.log('[Settings] Attempting to save settings');
+    try {
+        // Disable the button to prevent double-clicks
+        const saveBtn = document.getElementById('save-settings');
+        if (saveBtn) saveBtn.disabled = true;
 
-    // Get all setting values
-    const startMinimized = document.getElementById('start-minimized')?.checked || false;
-    const fullscreenArticle = document.getElementById('fullscreen-article')?.checked || false;
-    const fullscreenSource = document.getElementById('fullscreen-source')?.checked || false;
-    const hideDismiss = document.getElementById('hide-dismiss')?.checked || false;
-    const removeOnRead = document.getElementById('remove-on-read')?.checked || false;
-    const deleteMode = document.getElementById('delete-data-mode')?.value || '3';
+        // Get all setting values from DOM
+        const startMinimizedEl = document.getElementById('start-minimized');
+        const fullscreenArticleEl = document.getElementById('fullscreen-article');
+        const fullscreenSourceEl = document.getElementById('fullscreen-source');
+        const hideDismissEl = document.getElementById('hide-dismiss');
+        const removeOnReadEl = document.getElementById('remove-on-read');
+        const deleteModeEl = document.getElementById('delete-data-mode');
 
-    // TODO: Save settings to localStorage and database
-    // This will be implemented later with actual storage operations
+        const startMinimized = startMinimizedEl?.checked ?? false;
+        const fullscreenArticle = fullscreenArticleEl?.checked ?? false;
+        const fullscreenSource = fullscreenSourceEl?.checked ?? true;
+        const hideDismiss = hideDismissEl?.checked ?? false;
+        const removeOnRead = removeOnReadEl?.checked ?? true;
+        const deleteMode = deleteModeEl?.value ?? '3';
 
-    console.log('[Settings] Settings ready to save:', {
-        startMinimized,
-        fullscreenArticle,
-        fullscreenSource,
-        hideDismiss,
-        removeOnRead,
-        deleteMode
-    });
+        // Save frontend settings to localStorage
+        localStorage.setItem('start.minimized', startMinimized.toString());
+        localStorage.setItem('rss.fullscreen.article', fullscreenArticle.toString());
+        localStorage.setItem('rss.fullscreen.source', fullscreenSource.toString());
+        localStorage.setItem('rss.hide.dismiss', hideDismiss.toString());
+        localStorage.setItem('rss.remove.on.read', removeOnRead.toString());
+        localStorage.setItem('delete.data.mode', deleteMode);
 
-    // TODO: Show success message to user
+        // Force flush to ensure data is written
+        const tempKey = '__settings_save_test_' + Date.now();
+        localStorage.setItem(tempKey, 'test');
+        localStorage.removeItem(tempKey);
+
+        // Verify they were saved
+        if (localStorage.getItem('start.minimized') !== startMinimized.toString() ||
+            localStorage.getItem('delete.data.mode') !== deleteMode) {
+            throw new Error('Failed to verify settings were saved to localStorage');
+        }
+
+        // Send settings to backend (including start minimized for next launch)
+        if (window.communicator) {
+            window.communicator.send('save-settings', {
+                delete_mode: deleteMode,
+                start_minimized: startMinimized
+            });
+        }
+
+        // Show notification with a slight delay to ensure save is complete
+        setTimeout(() => {
+            showNotification('Settings saved successfully!', 'success');
+            // Re-enable save button after notification
+            if (saveBtn) saveBtn.disabled = false;
+        }, 100);
+    } catch (error) {
+        console.error('[Settings] Error saving settings:', error);
+        showNotification('Error saving settings. Please try again.', 'error');
+        const saveBtn = document.getElementById('save-settings');
+        if (saveBtn) saveBtn.disabled = false;
+    }
 }
 
 /**
  * Reset all settings to their default values
  */
 function resetSettingsToDefaults() {
-    console.log('[Settings] Resetting settings to defaults');
+    try {
+        // Defaults from todo.md
+        const defaults = {
+            'start-minimized': true,
+            'fullscreen-article': false,
+            'fullscreen-source': true,
+            'hide-dismiss': false,
+            'remove-on-read': true,
+            'delete-data-mode': '3'
+        };
 
-    // Defaults from todo.md
-    const defaults = {
-        'start-minimized': true,
-        'fullscreen-article': false,
-        'fullscreen-source': true,
-        'hide-dismiss': false,
-        'remove-on-read': true,
-        'delete-data-mode': '3'
-    };
-
-    Object.entries(defaults).forEach(([id, value]) => {
-        const element = document.getElementById(id);
-        if (element) {
-            if (element.type === 'checkbox') {
-                element.checked = value;
-            } else if (element.tagName === 'SELECT') {
-                element.value = value;
+        Object.entries(defaults).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                if (element.type === 'checkbox') {
+                    element.checked = value;
+                } else if (element.tagName === 'SELECT') {
+                    element.value = value;
+                }
             }
+        });
+
+        // Trigger conditional visibility update
+        const hideDismissCheckbox = document.getElementById('hide-dismiss');
+        if (hideDismissCheckbox) {
+            const event = new Event('change');
+            hideDismissCheckbox.dispatchEvent(event);
         }
-    });
 
-    // Trigger conditional visibility update
-    const hideDismissCheckbox = document.getElementById('hide-dismiss');
-    if (hideDismissCheckbox) {
-        const event = new Event('change');
-        hideDismissCheckbox.dispatchEvent(event);
+        // Clear localStorage and reset to defaults
+        Object.keys(localStorage)
+            .filter(key => key.startsWith('start.') || key.startsWith('rss.') || key.startsWith('delete.'))
+            .forEach(key => localStorage.removeItem(key));
+
+        // Save defaults to localStorage
+        localStorage.setItem('start.minimized', 'true');
+        localStorage.setItem('rss.fullscreen.article', 'false');
+        localStorage.setItem('rss.fullscreen.source', 'true');
+        localStorage.setItem('rss.hide.dismiss', 'false');
+        localStorage.setItem('rss.remove.on.read', 'true');
+        localStorage.setItem('delete.data.mode', '3');
+
+        // Notify backend
+        if (window.communicator) {
+            window.communicator.send('reset-settings', {});
+        }
+
+        showNotification('Settings reset to defaults!', 'success');
+    } catch (error) {
+        console.error('[Settings] Error resetting settings:', error);
+        showNotification('Error resetting settings. Please try again.', 'error');
     }
-
-    console.log('[Settings] Settings reset to defaults');
-
-    // TODO: Show confirmation message to user
 }
 
 /**
@@ -179,9 +258,7 @@ function subscribeToSettingsUpdates() {
     }
 
     window.communicator.subscribe('settings-update', (data) => {
-        console.log('[Settings] Settings update received:', data);
-        // TODO: Update UI with new settings from backend
+        // Reload settings from storage
+        loadSettingsFromStorage();
     });
-
-    console.log('[Settings] Subscribed to settings-update');
 }
