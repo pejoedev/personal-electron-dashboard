@@ -81,6 +81,14 @@ function setupMessagesFilters() {
         });
     }
 
+    // Setup manage feeds button
+    const manageFeedsBtn = document.getElementById('manage-feeds-btn');
+    if (manageFeedsBtn) {
+        manageFeedsBtn.addEventListener('click', () => {
+            window.router.navigate('rss-feeds');
+        });
+    }
+
     console.log('[Messages Filters] Filter controls setup complete');
 }
 

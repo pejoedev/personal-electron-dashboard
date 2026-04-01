@@ -84,6 +84,21 @@ function initializeDatabase() {
   );
 `);
     console.log(`Database ${DB_DIAGRAM_VERSION} Initialized!`)
+
+    // Migration: Add deleted column to rssFollow if it doesn't exist
+    try {
+        const columns = db.prepare("PRAGMA table_info(rssFollow)").all();
+        const hasDeletedColumn = columns.some(col => col.name === 'deleted');
+
+        if (!hasDeletedColumn) {
+            console.log('[Migration] Adding deleted column to rssFollow table...');
+            db.prepare("ALTER TABLE rssFollow ADD COLUMN deleted BOOLEAN DEFAULT 0").run();
+            console.log('[Migration] Successfully added deleted column to rssFollow table');
+        }
+    } catch (error) {
+        console.error('[Migration] Error checking/adding deleted column:', error);
+    }
+
     setTimeout(() => {
         if (INSERT_DATA) {
             templateItems()
@@ -103,7 +118,7 @@ function templateItems() {
         db.prepare(`
             INSERT INTO rssFollow (uuid, name, rssLink, deleted)
             VALUES (?, ?, ?, ?)
-        `).run(uuid, 'dimden.dev', 'https://dimden.dev/rss.xml', false);
+        `).run(uuid, 'dimden.dev', 'https://dimden.dev/rss.xml', 0);
         uuid = uuidv4();
         db.prepare(`
             INSERT INTO rssFollow (uuid, name, rssLink, deleted)
@@ -112,7 +127,7 @@ function templateItems() {
             uuid,
             'besluiten',
             'https://feeds.rijksoverheid.nl/besluiten.rss',
-            false
+            0
         );
         uuid = uuidv4();
         db.prepare(`
@@ -122,7 +137,7 @@ function templateItems() {
             uuid,
             'nosnieuwsopmerkelijk',
             'https://feeds.nos.nl/nosnieuwsopmerkelijk',
-            false
+            0
         );
 
         console.log('Default RSS feed added: dimden.dev');

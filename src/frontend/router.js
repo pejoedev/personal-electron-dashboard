@@ -7,6 +7,7 @@ class Router {
         this.pages = {
             dashboard: 'pages/html/dashboard.html',
             messages: 'pages/html/messages.html',
+            'rss-feeds': 'pages/html/rss-feeds.html',
             rss: 'pages/html/analytics.html',
             settings: 'pages/html/settings.html',
         };

@@ -20,6 +20,10 @@ window.pageInit = {
         setupMessagesPaginationControls();
         requestMessagesPage(0);
     },
+    'rss-feeds': () => {
+        console.log('Initializing RSS feeds management page');
+        initRssPage();
+    },
     analytics: () => {
         console.log('Initializing analytics page');
     },

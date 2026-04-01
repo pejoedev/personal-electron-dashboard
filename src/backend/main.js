@@ -301,6 +301,133 @@ function setupCommunicationHandlers() {
             });
         }
     });
+
+    // Handle RSS feeds CRUD operations
+    const RSSFeedsHandler = require('./models/RSSFeedsHandler');
+    const rssFeedsHandler = new RSSFeedsHandler();
+
+    // Get all RSS feeds
+    communicator.subscribe('request-rss-feeds-list', () => {
+        try {
+            const feeds = rssFeedsHandler.getAllFeeds();
+            communicator.send('rss-feeds-list-update', {
+                feeds: feeds,
+                totalCount: feeds.length
+            });
+            console.log(`[Main] Sent ${feeds.length} RSS feeds to frontend`);
+        } catch (error) {
+            console.error('[Main] Failed to fetch RSS feeds list:', error);
+            communicator.send('rss-feeds-error', {
+                error: error.message
+            });
+        }
+    });
+
+    // Create new RSS feed
+    communicator.subscribe('create-rss-feed', (data) => {
+        try {
+            if (!data.name || !data.rssLink) {
+                communicator.send('rss-feed-error', {
+                    error: 'Feed name and RSS link are required'
+                });
+                return;
+            }
+
+            const newFeed = rssFeedsHandler.createFeed(data.name, data.rssLink);
+            communicator.send('rss-feed-created', {
+                feed: newFeed,
+                success: true
+            });
+
+            console.log(`[Main] Created new RSS feed: ${newFeed.uuid}`);
+        } catch (error) {
+            console.error('[Main] Failed to create RSS feed:', error);
+            communicator.send('rss-feed-error', {
+                error: error.message
+            });
+        }
+    });
+
+    // Update RSS feed
+    communicator.subscribe('update-rss-feed', (data) => {
+        try {
+            if (!data.uuid) {
+                communicator.send('rss-feed-error', {
+                    error: 'Feed UUID is required'
+                });
+                return;
+            }
+
+            const updatedFeed = rssFeedsHandler.updateFeed(data.uuid, data.name, data.rssLink);
+            communicator.send('rss-feed-updated', {
+                feed: updatedFeed,
+                success: true
+            });
+
+            console.log(`[Main] Updated RSS feed: ${data.uuid}`);
+        } catch (error) {
+            console.error('[Main] Failed to update RSS feed:', error);
+            communicator.send('rss-feed-error', {
+                error: error.message
+            });
+        }
+    });
+
+    // Get delete preview for a feed
+    communicator.subscribe('request-rss-feed-delete-preview', (data) => {
+        try {
+            if (!data.uuid) {
+                communicator.send('rss-feed-error', {
+                    error: 'Feed UUID is required'
+                });
+                return;
+            }
+
+            const preview = rssFeedsHandler.getDeletePreview(data.uuid);
+            communicator.send('rss-feed-delete-preview', {
+                preview: preview
+            });
+
+            console.log(`[Main] Sent delete preview for RSS feed: ${data.uuid}`);
+        } catch (error) {
+            console.error('[Main] Failed to get delete preview:', error);
+            communicator.send('rss-feed-error', {
+                error: error.message
+            });
+        }
+    });
+
+    // Delete RSS feed
+    communicator.subscribe('delete-rss-feed', (data) => {
+        try {
+            if (!data.uuid) {
+                communicator.send('rss-feed-error', {
+                    error: 'Feed UUID is required'
+                });
+                return;
+            }
+
+            const result = rssFeedsHandler.deleteFeed(data.uuid, data.strategy);
+            communicator.send('rss-feed-deleted', {
+                result: result,
+                success: true
+            });
+
+            console.log(`[Main] Deleted RSS feed: ${data.uuid} (strategy: ${data.strategy || 'default'})`);
+
+            // Refresh the feeds list after deletion
+            const feeds = rssFeedsHandler.getAllFeeds();
+            communicator.send('rss-feeds-list-update', {
+                feeds: feeds,
+                totalCount: feeds.length
+            });
+        } catch (error) {
+            console.error('[Main] Failed to delete RSS feed:', error);
+            communicator.send('rss-feed-error', {
+                error: error.message
+            });
+        }
+    });
 }
 
 function initializeHooks() {
