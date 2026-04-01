@@ -11,6 +11,7 @@ needed for official release
         If the value is 3, it asks per deletion
         Default: 3
         Saved in userSetting table under key "delete.data.on.rssfollow.delete"
+        // only need to do the GUI, the rest already works
     - reader
         - open rss item in fullscreen boolean
             this boolean should control whether or not the "read" button will open a new pop-out window, or whether it opens in fullscreen in the default window.
