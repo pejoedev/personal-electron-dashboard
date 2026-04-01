@@ -70,6 +70,9 @@ function createCardElement(item) {
     card.setAttribute('data-message-id', item.uuid);
     console.log(item);
 
+    // Check if dismiss button should be hidden
+    const hideDismiss = localStorage.getItem('rss.hide.dismiss') === 'true';
+
     if (item.isAlert) {
         // Alert card
         const levelClass = item.alert?.severity_level?.toLowerCase() || 'info';
@@ -80,7 +83,7 @@ function createCardElement(item) {
             <div class="news-description">${escapeHtml(item.description)}</div>
             <div class="news-notes">
                 <a class="news-read" href="#report?id=${escapeHtml(item.uuid)}">View Report</a>
-                <button class="news-dismiss" type="button">Dismiss</button>
+                ${!hideDismiss ? '<button class="news-dismiss" type="button">Dismiss</button>' : ''}
                 <p class="news-level">${escapeHtml(item.alert?.severity_level || 'Info')}</p>
                 <p class="news-timestamp">${formatDate(item.publication_date || item.fetch_date)}</p>
             </div>
@@ -116,7 +119,7 @@ function createCardElement(item) {
             <div class="rss-description">${escapeHtml(item.description)}</div>
             <div class="rss-notes">
                 <a class="rss-read" href="${escapeHtml(item.link)}"${articleTarget}>Read</a>
-                <button class="rss-dismiss" type="button">Dismiss</button>
+                ${!hideDismiss ? '<button class="rss-dismiss" type="button">Dismiss</button>' : ''}
                 <a class="rss-source" href="${escapeHtml(item.feedLink)}"${sourceTarget}>${escapeHtml(item.feedName)}</a>
                 <p class="rss-timestamp">${formatDate(item.publication_date || item.fetch_date)}</p>
             </div>
