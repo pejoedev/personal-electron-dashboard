@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Render static components
     window.header.render();
-    window.footer.render();
+    await window.footer.render();
 
     // Setup communicator subscriptions first
     setupCommunicator();
