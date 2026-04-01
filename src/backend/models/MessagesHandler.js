@@ -285,16 +285,15 @@ class MessagesHandler {
 
         if (existingMessage) {
             messageUuid = existingMessage.uuid;
-            // Update existing message
+            // Update existing message (preserve viewed status)
             const updateMessageStmt = db.prepare(`
             UPDATE message 
-            SET description = ?, publication_date = ?, viewed = ?
+            SET description = ?, publication_date = ?
             WHERE uuid = ?
         `);
             updateMessageStmt.run(
                 item.description,
                 item.publication_date,
-                item.viewed ? 1 : 0,
                 messageUuid
             );
         } else {
