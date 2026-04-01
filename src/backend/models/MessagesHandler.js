@@ -318,8 +318,8 @@ class MessagesHandler {
         // Check if rss entry already exists
         const existingRss = db.prepare(`
             SELECT uuid FROM rss 
-            WHERE feedId = ? AND feedId = ?
-        `).get(item.feedId ?? "", feedId);
+            WHERE feedId = ? AND messageId = ?
+        `).get(feedId, messageUuid);
 
         if (existingRss) {
             // Update existing rss entry
