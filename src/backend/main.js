@@ -7,7 +7,7 @@ const { db, initializeDatabase } = require('./sql/init.sql');
 
 initializeDatabase();
 
-const { SetupRSS } = require('./rss/rss-setup');
+const { SetupRSS, FetchRss } = require('./rss/rss-setup');
 
 const settingsHandler = require("./models/settingsHandler")
 let mainWindow;
@@ -342,7 +342,7 @@ function setupCommunicationHandlers() {
     });
 
     // Create new RSS feed
-    communicator.subscribe('create-rss-feed', (data) => {
+    communicator.subscribe('create-rss-feed', async (data) => {
         try {
             if (!data.name || !data.rssLink) {
                 communicator.send('rss-feed-error', {
@@ -358,6 +358,10 @@ function setupCommunicationHandlers() {
             });
 
             console.log(`[Main] Created new RSS feed: ${newFeed.uuid}`);
+            
+            // Immediately fetch the new feed
+            console.log('[Main] Fetching RSS for newly created feed...');
+            await FetchRss();
         } catch (error) {
             console.error('[Main] Failed to create RSS feed:', error);
             communicator.send('rss-feed-error', {
@@ -367,7 +371,7 @@ function setupCommunicationHandlers() {
     });
 
     // Update RSS feed
-    communicator.subscribe('update-rss-feed', (data) => {
+    communicator.subscribe('update-rss-feed', async (data) => {
         try {
             if (!data.uuid) {
                 communicator.send('rss-feed-error', {
@@ -383,6 +387,10 @@ function setupCommunicationHandlers() {
             });
 
             console.log(`[Main] Updated RSS feed: ${data.uuid}`);
+            
+            // Immediately fetch the updated feed
+            console.log('[Main] Fetching RSS for updated feed...');
+            await FetchRss();
         } catch (error) {
             console.error('[Main] Failed to update RSS feed:', error);
             communicator.send('rss-feed-error', {

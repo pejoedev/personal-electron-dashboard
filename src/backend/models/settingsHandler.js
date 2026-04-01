@@ -55,7 +55,8 @@ class SettingsHandler {
     }
 
     getRssFollowedChannels() {
-        return this.rssFollow;
+        // Always reload from database to get latest feeds (not cached version)
+        return this.loadRssSettings();
     }
 
 }

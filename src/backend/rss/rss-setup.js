@@ -17,7 +17,9 @@ function RegisterCrons() {
 async function FetchRss() {
     console.log("Fetching RSS Feeds!")
     const allChannelFeeds = [];
-    await Promise.all(settingsHandler.rssFollow.map(async (item) => {
+    // Reload RSS feeds dynamically instead of using cached array
+    const rssFeeds = settingsHandler.getRssFollowedChannels();
+    await Promise.all(rssFeeds.map(async (item) => {
         let respone = await _FetchWebsite(item.rssLink)
         if (respone == null) {
             return;
@@ -112,4 +114,4 @@ function SetupRSS(commInstance = null) {
     RegisterCrons()
 }
 
-module.exports = { SetupRSS }
+module.exports = { SetupRSS, FetchRss }
