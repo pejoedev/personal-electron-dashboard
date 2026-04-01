@@ -33,28 +33,147 @@ class MessagesHandler {
     }
 
     /**
-     * Fetch all items from the messages table
-     * @param {*} hideViewed - if true, hide the items where viewed == 1
-     * @param {*} limit - number of items per page (default: 20)
-     * @param {*} page - page number starting from 0 (default: 0)
-     * @returns 
+     * Fetch messages with advanced filtering
+     * @param {Object} options - Filter options
+     * @param {string} options.type - Filter by type: 'all', 'rss', 'alert' (default: 'all')
+     * @param {string} options.viewedStatus - Filter by viewed status: 'all', 'viewed', 'unviewed' (default: 'all')
+     * @param {string} options.searchQuery - Search in title and description fields
+     * @param {string} options.feedName - Filter by specific feed name (exact match)
+     * @param {string} options.projectName - Filter by specific project name (exact match)
+     * @param {number} options.limit - number of items per page (default: 20)
+     * @param {number} options.page - page number starting from 0 (default: 0)
+     * @returns {Object} { items: [], totalCount: number }
      */
-    fetchMessages(hideViewed = false, limit = 20, page = 0) {
-        // Base query to get messages
-        let query = 'SELECT * FROM message';
+    fetchMessages(options = {}) {
+        // Destructure with defaults
+        const {
+            type = 'all',
+            viewedStatus = 'all',
+            searchQuery = '',
+            feedName = '',
+            projectName = '',
+            limit = 20,
+            page = 0
+        } = options;
 
-        if (hideViewed) {
-            query += ' WHERE viewed = 0';
+        // Build WHERE clauses
+        let whereConditions = [];
+
+        // Handle viewed status filter
+        if (viewedStatus === 'unviewed') {
+            whereConditions.push('m.viewed = 0');
+        } else if (viewedStatus === 'viewed') {
+            whereConditions.push('m.viewed = 1');
+        }
+        // If viewedStatus === 'all', don't add any condition
+
+        if (searchQuery) {
+            const searchTerm = `%${searchQuery}%`;
+            whereConditions.push(`(m.title LIKE ? OR m.description LIKE ?)`);
         }
 
-        // Sort by fetch_date
-        query += ' ORDER BY fetch_date DESC';
+        // Get total count with current filters (before pagination)
+        let countQuery = 'SELECT COUNT(DISTINCT m.uuid) as count FROM message m';
+        let countParams = [];
+        let joinClauses = '';
 
-        // Calculate offset
+        if (type === 'rss' || feedName) {
+            countQuery += ' LEFT JOIN rss r ON m.uuid = r.messageId';
+            countQuery += ' LEFT JOIN feed f ON r.feedId = f.uuid';
+            if (type === 'rss') {
+                whereConditions.push('r.uuid IS NOT NULL');
+            }
+            if (feedName) {
+                whereConditions.push('f.name = ?');
+                countParams.push(feedName);
+            }
+        } else if (type === 'alert' || projectName) {
+            countQuery += ' LEFT JOIN securityAlert sa ON m.uuid = sa.messageId';
+            countQuery += ' LEFT JOIN project p ON sa.projectId = p.uuid';
+            if (type === 'alert') {
+                whereConditions.push('sa.uuid IS NOT NULL');
+            }
+            if (projectName) {
+                whereConditions.push('p.name = ?');
+                countParams.push(projectName);
+            }
+        }
+
+        // Add search parameters
+        if (searchQuery) {
+            const searchTerm = `%${searchQuery}%`;
+            countParams.push(searchTerm, searchTerm);
+        }
+
+        if (whereConditions.length > 0) {
+            countQuery += ' WHERE ' + whereConditions.join(' AND ');
+        }
+
+        const countResult = db.prepare(countQuery).get(...countParams);
+        const totalCount = countResult.count || 0;
+
+        // Build main query with joins and filters
+        let query = 'SELECT DISTINCT m.* FROM message m';
+        let params = [];
+
+        // Add joins based on type filter
+        if (type === 'rss' || feedName) {
+            query += ' LEFT JOIN rss r ON m.uuid = r.messageId';
+            query += ' LEFT JOIN feed f ON r.feedId = f.uuid';
+        } else if (type === 'alert' || projectName) {
+            query += ' LEFT JOIN securityAlert sa ON m.uuid = sa.messageId';
+            query += ' LEFT JOIN project p ON sa.projectId = p.uuid';
+        } else {
+            // For 'all' type, still need joins to include RSS and Alert info later
+            query += ' LEFT JOIN rss r ON m.uuid = r.messageId';
+            query += ' LEFT JOIN feed f ON r.feedId = f.uuid';
+            query += ' LEFT JOIN securityAlert sa ON m.uuid = sa.messageId';
+            query += ' LEFT JOIN project p ON sa.projectId = p.uuid';
+        }
+
+        // Add WHERE conditions
+        whereConditions = [];
+        params = [];
+
+        // Handle viewed status filter
+        if (viewedStatus === 'unviewed') {
+            whereConditions.push('m.viewed = 0');
+        } else if (viewedStatus === 'viewed') {
+            whereConditions.push('m.viewed = 1');
+        }
+
+        if (searchQuery) {
+            const searchTerm = `%${searchQuery}%`;
+            whereConditions.push(`(m.title LIKE ? OR m.description LIKE ?)`);
+            params.push(searchTerm, searchTerm);
+        }
+
+        if (type === 'rss') {
+            whereConditions.push('r.uuid IS NOT NULL');
+        } else if (type === 'alert') {
+            whereConditions.push('sa.uuid IS NOT NULL');
+        }
+
+        if (feedName) {
+            whereConditions.push('f.name = ?');
+            params.push(feedName);
+        }
+
+        if (projectName) {
+            whereConditions.push('p.name = ?');
+            params.push(projectName);
+        }
+
+        if (whereConditions.length > 0) {
+            query += ' WHERE ' + whereConditions.join(' AND ');
+        }
+
+        // Sort and paginate
+        query += ' ORDER BY m.fetch_date DESC';
         const offset = page * limit;
         query += ` LIMIT ${limit} OFFSET ${offset}`;
 
-        const messages = db.prepare(query).all();
+        const messages = db.prepare(query).all(...params);
         const result = [];
 
         // Prepare statements once outside the loop
@@ -98,7 +217,61 @@ class MessagesHandler {
             result.push(item);
         });
 
-        return result;
+        return {
+            items: result,
+            totalCount: totalCount,
+            currentPage: page,
+            pageSize: limit,
+            totalPages: Math.ceil(totalCount / limit)
+        };
+    }
+
+    /**
+     * Legacy method for backward compatibility - fetches messages with minimal options
+     * @deprecated Use fetchMessages with options object instead
+     */
+    fetchMessages_legacy(hideViewed = false, limit = 20, page = 0) {
+        return this.fetchMessages({ hideViewed, limit, page });
+    }
+
+    /**
+     * Get all unique feed names from RSS entries
+     * @returns {Array<string>} Array of unique feed names sorted alphabetically
+     */
+    getUniqueFeedNames() {
+        try {
+            const query = `
+                SELECT DISTINCT f.name
+                FROM feed f
+                JOIN rss r ON f.uuid = r.feedId
+                ORDER BY f.name ASC
+            `;
+            const results = db.prepare(query).all();
+            return results.map(r => r.name);
+        } catch (error) {
+            console.error('[MessagesHandler] Error getting unique feed names:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Get all unique project names from security alerts
+     * @returns {Array<string>} Array of unique project names sorted alphabetically
+     */
+    getUniqueProjectNames() {
+        try {
+            const query = `
+                SELECT DISTINCT p.name
+                FROM project p
+                JOIN securityAlert sa ON p.uuid = sa.projectId
+                ORDER BY p.name ASC
+            `;
+            const results = db.prepare(query).all();
+            return results.map(r => r.name);
+        } catch (error) {
+            console.error('[MessagesHandler] Error getting unique project names:', error);
+            return [];
+        }
     }
 
     _addOrOverwriteMessage(item, feedId) {

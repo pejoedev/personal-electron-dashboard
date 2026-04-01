@@ -1,0 +1,75 @@
+<link rel="stylesheet" href="styles/messages.css" />
+<div id="messages-page" class="content-section">
+    <section id="messages-filter-panel" class="filter-panel">
+        <h2>Messages Feed</h2>
+
+        <div class="filter-controls">
+            <!-- Type Filter -->
+            <div class="filter-group">
+                <label for="filter-type">Type:</label>
+                <select id="filter-type" class="filter-select">
+                    <option value="all">All Messages</option>
+                    <option value="rss">RSS Only</option>
+                    <option value="alert">Security Alerts Only</option>
+                </select>
+            </div>
+
+            <!-- Search Filter -->
+            <div class="filter-group">
+                <label for="filter-search">Search:</label>
+                <input type="text" id="filter-search" class="filter-input"
+                    placeholder="Search in title and description..." />
+            </div>
+
+            <!-- Feed Filter (for RSS) -->
+            <div class="filter-group" id="feed-filter-group">
+                <label for="filter-feed">Feed:</label>
+                <select id="filter-feed" class="filter-select">
+                    <option value="">All Feeds</option>
+                </select>
+            </div>
+
+            <!-- Project Filter (for Alerts) -->
+            <div class="filter-group" id="project-filter-group">
+                <label for="filter-project">Project:</label>
+                <select id="filter-project" class="filter-select">
+                    <option value="">All Projects</option>
+                </select>
+            </div>
+
+            <!-- Viewed Status Filter -->
+            <div class="filter-group">
+                <label for="filter-viewed">Status:</label>
+                <select id="filter-viewed" class="filter-select">
+                    <option value="">All Messages</option>
+                    <option value="unviewed">Unviewed Only</option>
+                    <option value="viewed">Viewed Only</option>
+                </select>
+            </div>
+
+            <!-- Apply Filters Button -->
+            <button id="apply-filters-btn" class="btn-primary">Apply Filters</button>
+            <button id="reset-filters-btn" class="btn-secondary">Reset</button>
+        </div>
+
+        <div class="filter-status">
+            <span id="messages-count">Total: 0 messages</span>
+        </div>
+    </section>
+
+    <!-- Messages Feed Container -->
+    <section id="messages-feed-panel" class="messages-feed">
+        <div id="messages-feed" class="messages-list">
+            <!-- Messages will be rendered here -->
+        </div>
+    </section>
+
+    <!-- Pagination Controls -->
+    <div class="pagination-wrapper">
+        <div id="messages-pagination" class="messages-pagination">
+            <button id="messages-prev-btn" class="pagination-btn prev-btn">← Previous</button>
+            <span id="messages-page-info" class="page-info">Page 1 of 1</span>
+            <button id="messages-next-btn" class="pagination-btn next-btn">Next →</button>
+        </div>
+    </div>
+</div>

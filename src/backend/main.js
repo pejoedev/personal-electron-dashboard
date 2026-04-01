@@ -183,26 +183,46 @@ function setupCommunicationHandlers() {
     // Handle RSS feed requests from frontend
     communicator.subscribe('request-rss-feed', (data) => {
         const messagesHandler = require('./models/MessagesHandler');
-        
+
         const page = data.page || 0;
         const limit = data.limit || 20;
-        const hideViewed = data.hideViewed !== undefined ? data.hideViewed : true;
 
         try {
-            const feeds = messagesHandler.fetchMessages(hideViewed, limit, page);
-            const totalCount = messagesHandler.getTotalMessageCount(hideViewed);
-
-            communicator.send('rss-feed-update', {
-                feeds: feeds,
-                totalCount: totalCount,
-                currentPage: page,
-                pageSize: limit
+            // Use new fetchMessages API with options object
+            // RSS feed on dashboard shows only unviewed items by default
+            const result = messagesHandler.fetchMessages({
+                type: 'rss',
+                viewedStatus: 'unviewed',
+                limit: limit,
+                page: page
             });
 
-            console.log(`[Main] Sent ${feeds.length} feeds to frontend (total: ${totalCount}, page: ${page})`);
+            if (!result || !Array.isArray(result.items)) {
+                console.error('[Main] Invalid result from fetchMessages, result:', result);
+                communicator.send('rss-feed-update', {
+                    feeds: [],
+                    totalCount: 0,
+                    currentPage: page,
+                    pageSize: limit
+                });
+                return;
+            }
+
+            communicator.send('rss-feed-update', {
+                feeds: result.items || [],
+                totalCount: result.totalCount || 0,
+                currentPage: result.currentPage || page,
+                pageSize: result.pageSize || limit
+            });
+
+            console.log(`[Main] Sent ${result.items.length} RSS feeds to frontend (total: ${result.totalCount}, page: ${page})`);
         } catch (error) {
             console.error('[Main] Failed to fetch RSS feed data:', error);
-            communicator.send('rss-feed-error', {
+            communicator.send('rss-feed-update', {
+                feeds: [],
+                totalCount: 0,
+                currentPage: page,
+                pageSize: limit,
                 error: error.message
             });
         }
@@ -223,6 +243,62 @@ function setupCommunicationHandlers() {
             console.log(`[Main] Marked message ${messageId} as viewed:`, success);
         } catch (error) {
             console.error('[Main] Failed to mark message as viewed:', error);
+        }
+    });
+
+    // Handle messages feed requests from frontend with advanced filtering
+    communicator.subscribe('request-messages-feed', (data) => {
+        const messagesHandler = require('./models/MessagesHandler');
+
+        const options = {
+            page: data.page || 0,
+            limit: data.limit || 20,
+            type: data.type || 'all',
+            viewedStatus: data.viewedStatus || 'all',
+            searchQuery: data.searchQuery || '',
+            feedName: data.feedName || '',
+            projectName: data.projectName || ''
+        };
+
+        try {
+            const result = messagesHandler.fetchMessages(options);
+
+            communicator.send('messages-feed-update', {
+                items: result.items,
+                totalCount: result.totalCount,
+                currentPage: result.currentPage,
+                pageSize: result.pageSize,
+                totalPages: result.totalPages
+            });
+
+            console.log(`[Main] Sent ${result.items.length} messages to frontend (total: ${result.totalCount}, filters:`, JSON.stringify(options), ')');
+        } catch (error) {
+            console.error('[Main] Failed to fetch messages feed data:', error);
+            communicator.send('messages-feed-error', {
+                error: error.message
+            });
+        }
+    });
+
+    // Handle filter options request (feed and project names)
+    communicator.subscribe('request-filter-options', () => {
+        const messagesHandler = require('./models/MessagesHandler');
+
+        try {
+            const feedNames = messagesHandler.getUniqueFeedNames();
+            const projectNames = messagesHandler.getUniqueProjectNames();
+
+            communicator.send('filter-options-update', {
+                feedNames: feedNames,
+                projectNames: projectNames
+            });
+
+            console.log(`[Main] Sent filter options to frontend (feeds: ${feedNames.length}, projects: ${projectNames.length})`);
+        } catch (error) {
+            console.error('[Main] Failed to fetch filter options:', error);
+            communicator.send('filter-options-error', {
+                error: error.message
+            });
         }
     });
 }

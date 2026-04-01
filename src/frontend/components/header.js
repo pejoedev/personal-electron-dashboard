@@ -14,7 +14,8 @@ class Header {
                 </div>
                 <nav class="header-nav">
                     <ul>
-                        <li><a href="#overview" class="nav-link" data-page="dashboard">Dashboard</a></li>
+                        <li><a href="#dashboard" class="nav-link" data-page="dashboard">Dashboard</a></li>
+                        <li><a href="#messages" class="nav-link" data-page="messages">Messages</a></li>
                     </ul>
                 </nav>
             </div>
