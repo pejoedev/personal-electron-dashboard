@@ -9,6 +9,8 @@
     <title>Personal Dashboard</title>
     <link rel="stylesheet" href="styles/default.css" />
     <link rel="stylesheet" href="styles/dashboard.css" />
+    <link rel="stylesheet" href="styles/messages.css" />
+    <link rel="stylesheet" href="styles/rss-feeds.css" />
     <link rel="stylesheet" href="styles/analytics.css" />
     <link rel="stylesheet" href="styles/settings.css" />
     <link rel="stylesheet" href="styles/pageElements.css" />
@@ -24,11 +26,23 @@
     <!-- Shared Footer (populated by footer.js) -->
     <footer class="footer" id="footer"></footer>
 
-    <!-- Scripts: communicator, components, router, then app -->
+    <!-- Scripts: Load in dependency order -->
+    <!-- 1. Core dependencies -->
     <script src="communicator.js"></script>
     <script src="components/header.js"></script>
     <script src="components/footer.js"></script>
     <script src="router.js"></script>
+
+    <!-- 2. State and utilities (needed by page modules) -->
+    <script src="state.js"></script>
+    <script src="utils.js"></script>
+
+    <!-- 3. Page-specific modules -->
+    <script src="dashboard.js"></script>
+    <script src="messages.js"></script>
+    <script src="rss-feeds.js"></script>
+
+    <!-- 4. Main app entry point (ties everything together) -->
     <script src="app.js"></script>
 </body>
 

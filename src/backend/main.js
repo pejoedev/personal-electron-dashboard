@@ -3,10 +3,13 @@ const path = require('path');
 const fs = require('fs');
 const cron = require('./models/CronScheduler');
 const Communicator = require('./models/Communicator');
-const { SetupRSS } = require('./rss/rss-setup');
 const { db, initializeDatabase } = require('./sql/init.sql');
 
 initializeDatabase();
+
+const { SetupRSS } = require('./rss/rss-setup');
+
+const settingsHandler = require("./models/settingsHandler")
 let mainWindow;
 let tray = null;
 let communicator = new Communicator();
@@ -22,7 +25,7 @@ const createWindow = () => {
         // frame: true,
         // minWidth: 800,
         // minHeight: 600,
-        show: true,
+        show: false,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
@@ -152,7 +155,7 @@ ipcMain.on('message-from-renderer', (event, data) => {
     console.log('Main received:', data);
     // Emit to all subscribers of this message type
     if (data.eventType) {
-        communicator.emit(data.eventType, data);
+        communicator.emit(data.eventType, data.data);
     }
     // Send response back
     event.reply('message-to-renderer', { status: 'received', data: data });
@@ -172,11 +175,341 @@ app.whenReady().then(() => {
     createWindow();
     createTray();
     setupBackgroundJobs();
+    setupCommunicationHandlers();
     initializeHooks();
 });
 
+function setupCommunicationHandlers() {
+    // Handle RSS feed requests from frontend
+    communicator.subscribe('request-rss-feed', (data) => {
+        const messagesHandler = require('./models/MessagesHandler');
+
+        const page = data.page || 0;
+        const limit = data.limit || 20;
+
+        try {
+            // Use new fetchMessages API with options object
+            // RSS feed on dashboard shows only unviewed items by default
+            const result = messagesHandler.fetchMessages({
+                type: 'rss',
+                viewedStatus: 'unviewed',
+                limit: limit,
+                page: page
+            });
+
+            if (!result || !Array.isArray(result.items)) {
+                console.error('[Main] Invalid result from fetchMessages, result:', result);
+                communicator.send('rss-feed-update', {
+                    feeds: [],
+                    totalCount: 0,
+                    currentPage: page,
+                    pageSize: limit
+                });
+                return;
+            }
+
+            communicator.send('rss-feed-update', {
+                feeds: result.items || [],
+                totalCount: result.totalCount || 0,
+                currentPage: result.currentPage || page,
+                pageSize: result.pageSize || limit
+            });
+
+            console.log(`[Main] Sent ${result.items.length} RSS feeds to frontend (total: ${result.totalCount}, page: ${page})`);
+        } catch (error) {
+            console.error('[Main] Failed to fetch RSS feed data:', error);
+            communicator.send('rss-feed-update', {
+                feeds: [],
+                totalCount: 0,
+                currentPage: page,
+                pageSize: limit,
+                error: error.message
+            });
+        }
+    });
+
+    // Handle mark item as viewed requests from frontend
+    communicator.subscribe('mark-item-viewed', (data) => {
+        const messagesHandler = require('./models/MessagesHandler');
+        const messageId = data.messageId;
+
+        if (!messageId) {
+            console.error('[Main] mark-item-viewed: messageId not provided');
+            return;
+        }
+
+        try {
+            const success = messagesHandler.markMessageAsViewed(messageId);
+            console.log(`[Main] Marked message ${messageId} as viewed:`, success);
+        } catch (error) {
+            console.error('[Main] Failed to mark message as viewed:', error);
+        }
+    });
+
+    // Handle messages feed requests from frontend with advanced filtering
+    communicator.subscribe('request-messages-feed', (data) => {
+        const messagesHandler = require('./models/MessagesHandler');
+
+        const options = {
+            page: data.page || 0,
+            limit: data.limit || 20,
+            type: data.type || 'all',
+            viewedStatus: data.viewedStatus || 'all',
+            searchQuery: data.searchQuery || '',
+            feedName: data.feedName || '',
+            projectName: data.projectName || ''
+        };
+
+        try {
+            const result = messagesHandler.fetchMessages(options);
+
+            communicator.send('messages-feed-update', {
+                items: result.items,
+                totalCount: result.totalCount,
+                currentPage: result.currentPage,
+                pageSize: result.pageSize,
+                totalPages: result.totalPages
+            });
+
+            console.log(`[Main] Sent ${result.items.length} messages to frontend (total: ${result.totalCount}, filters:`, JSON.stringify(options), ')');
+        } catch (error) {
+            console.error('[Main] Failed to fetch messages feed data:', error);
+            communicator.send('messages-feed-error', {
+                error: error.message
+            });
+        }
+    });
+
+    // Handle filter options request (feed and project names)
+    communicator.subscribe('request-filter-options', () => {
+        const messagesHandler = require('./models/MessagesHandler');
+
+        try {
+            const feedNames = messagesHandler.getUniqueFeedNames();
+            const projectNames = messagesHandler.getUniqueProjectNames();
+
+            communicator.send('filter-options-update', {
+                feedNames: feedNames,
+                projectNames: projectNames
+            });
+
+            console.log(`[Main] Sent filter options to frontend (feeds: ${feedNames.length}, projects: ${projectNames.length})`);
+        } catch (error) {
+            console.error('[Main] Failed to fetch filter options:', error);
+            communicator.send('filter-options-error', {
+                error: error.message
+            });
+        }
+    });
+
+    // Handle RSS feeds CRUD operations
+    const RSSFeedsHandler = require('./models/RSSFeedsHandler');
+    const rssFeedsHandler = new RSSFeedsHandler();
+
+    // Get all RSS feeds
+    communicator.subscribe('request-rss-feeds-list', () => {
+        try {
+            const feeds = rssFeedsHandler.getAllFeeds();
+            communicator.send('rss-feeds-list-update', {
+                feeds: feeds,
+                totalCount: feeds.length
+            });
+            console.log(`[Main] Sent ${feeds.length} RSS feeds to frontend`);
+        } catch (error) {
+            console.error('[Main] Failed to fetch RSS feeds list:', error);
+            communicator.send('rss-feeds-error', {
+                error: error.message
+            });
+        }
+    });
+
+    // Create new RSS feed
+    communicator.subscribe('create-rss-feed', (data) => {
+        try {
+            if (!data.name || !data.rssLink) {
+                communicator.send('rss-feed-error', {
+                    error: 'Feed name and RSS link are required'
+                });
+                return;
+            }
+
+            const newFeed = rssFeedsHandler.createFeed(data.name, data.rssLink);
+            communicator.send('rss-feed-created', {
+                feed: newFeed,
+                success: true
+            });
+
+            console.log(`[Main] Created new RSS feed: ${newFeed.uuid}`);
+        } catch (error) {
+            console.error('[Main] Failed to create RSS feed:', error);
+            communicator.send('rss-feed-error', {
+                error: error.message
+            });
+        }
+    });
+
+    // Update RSS feed
+    communicator.subscribe('update-rss-feed', (data) => {
+        try {
+            if (!data.uuid) {
+                communicator.send('rss-feed-error', {
+                    error: 'Feed UUID is required'
+                });
+                return;
+            }
+
+            const updatedFeed = rssFeedsHandler.updateFeed(data.uuid, data.name, data.rssLink);
+            communicator.send('rss-feed-updated', {
+                feed: updatedFeed,
+                success: true
+            });
+
+            console.log(`[Main] Updated RSS feed: ${data.uuid}`);
+        } catch (error) {
+            console.error('[Main] Failed to update RSS feed:', error);
+            communicator.send('rss-feed-error', {
+                error: error.message
+            });
+        }
+    });
+
+    // Get delete preview for a feed
+    communicator.subscribe('request-rss-feed-delete-preview', (data) => {
+        try {
+            if (!data.uuid) {
+                communicator.send('rss-feed-error', {
+                    error: 'Feed UUID is required'
+                });
+                return;
+            }
+
+            const preview = rssFeedsHandler.getDeletePreview(data.uuid);
+            communicator.send('rss-feed-delete-preview', {
+                preview: preview
+            });
+
+            console.log(`[Main] Sent delete preview for RSS feed: ${data.uuid}`);
+        } catch (error) {
+            console.error('[Main] Failed to get delete preview:', error);
+            communicator.send('rss-feed-error', {
+                error: error.message
+            });
+        }
+    });
+
+    // Delete RSS feed
+    communicator.subscribe('delete-rss-feed', (data) => {
+        try {
+            if (!data.uuid) {
+                communicator.send('rss-feed-error', {
+                    error: 'Feed UUID is required'
+                });
+                return;
+            }
+
+            const result = rssFeedsHandler.deleteFeed(data.uuid, data.strategy);
+
+            // Check if result is an ask response
+            if (result.askUser) {
+                // Return preview and ask user to choose
+                communicator.send('rss-feed-ask-deletion-method', {
+                    feedUuid: data.uuid,
+                    preview: result.preview
+                });
+                console.log(`[Main] Asking user for deletion method for feed: ${data.uuid}`);
+            } else {
+                // Deletion was performed
+                communicator.send('rss-feed-deleted', {
+                    result: result,
+                    success: true
+                });
+                console.log(`[Main] Deleted RSS feed: ${data.uuid} (method: ${result.deleteType})`);
+
+                // Refresh the feeds list after deletion
+                const feeds = rssFeedsHandler.getAllFeeds();
+                communicator.send('rss-feeds-list-update', {
+                    feeds: feeds,
+                    totalCount: feeds.length
+                });
+            }
+        } catch (error) {
+            console.error('[Main] Failed to delete RSS feed:', error);
+            communicator.send('rss-feed-error', {
+                error: error.message
+            });
+        }
+    });
+
+    // Get deletion mode setting
+    communicator.subscribe('get-deletion-mode', (data) => {
+        try {
+            const setting = db.prepare(`
+                SELECT value FROM userSetting WHERE key = ?
+            `).get('delete.data.on.rssfollow.delete');
+
+            const deletionMode = setting ? parseInt(setting.value) : 3; // Default to 3 if not set
+
+            communicator.send('deletion-mode-response', {
+                deletionMode: deletionMode,
+                success: true
+            });
+            console.log(`[Main] Sent deletion mode: ${deletionMode}`);
+        } catch (error) {
+            console.error('[Main] Failed to get deletion mode:', error);
+            communicator.send('deletion-mode-error', {
+                error: error.message
+            });
+        }
+    });
+
+    // Set deletion mode setting
+    communicator.subscribe('set-deletion-mode', (data) => {
+        try {
+            if (data.mode === undefined || data.mode === null) {
+                communicator.send('deletion-mode-error', {
+                    error: 'Deletion mode is required'
+                });
+                return;
+            }
+
+            const mode = parseInt(data.mode);
+            if (![1, 2, 3].includes(mode)) {
+                communicator.send('deletion-mode-error', {
+                    error: 'Invalid deletion mode. Must be 1, 2, or 3'
+                });
+                return;
+            }
+
+            const stmt = db.prepare(`
+                UPDATE userSetting SET value = ? WHERE key = ?
+            `);
+            const result = stmt.run(mode.toString(), 'delete.data.on.rssfollow.delete');
+
+            if (result.changes === 0) {
+                // Setting doesn't exist, insert it
+                db.prepare(`
+                    INSERT INTO userSetting (key, value) VALUES (?, ?)
+                `).run('delete.data.on.rssfollow.delete', mode.toString());
+            }
+
+            communicator.send('deletion-mode-updated', {
+                deletionMode: mode,
+                success: true
+            });
+            console.log(`[Main] Updated deletion mode to: ${mode}`);
+        } catch (error) {
+            console.error('[Main] Failed to set deletion mode:', error);
+            communicator.send('deletion-mode-error', {
+                error: error.message
+            });
+        }
+    });
+}
+
 function initializeHooks() {
-    SetupRSS()
+    setTimeout(() => {
+        SetupRSS(communicator)
+    }, 1000)
 }
 
 /**
@@ -197,9 +530,9 @@ function setupBackgroundJobs() {
     }, app);
 
     // Example: Health check every 30 seconds
-    cron.schedule('Health Check', 30 * 1000, async () => {
+    cron.schedule('Health Check', 10 * 1000, async (cronjob) => {
         // TODO: Add your health check logic here
-    }, app);
+    }, app, 3);
 
     // Ping frontend every 10 seconds
     // cron.schedule('Ping Frontend', 10 * 1000, async () => {
@@ -207,7 +540,7 @@ function setupBackgroundJobs() {
     // }, app);
 
     // Start all scheduled jobs
-    cron.startAll();
+    cron.startAll(true);
 }
 
 app.on('window-all-closed', () => {

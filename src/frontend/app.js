@@ -1,12 +1,28 @@
-// Dashboard application logic
+/**
+ * Main Application Entry Point
+ * Slim orchestrator that initializes the app and manages page switching
+ */
 
 /**
  * Page-specific initialization registry
  */
 window.pageInit = {
-    overview: () => {
-        console.log('Initializing overview page');
+    dashboard: () => {
+        console.log('Initializing dashboard page');
         updateLastRefresh();
+        setupPaginationControls();
+        console.log('[Dashboard Init] Requesting RSS feed data');
+        requestRssPage(0);
+    },
+    messages: () => {
+        console.log('Initializing messages page');
+        setupMessagesFilters();
+        setupMessagesPaginationControls();
+        requestMessagesPage(0);
+    },
+    'rss-feeds': () => {
+        console.log('Initializing RSS feeds management page');
+        initRssPage();
     },
     analytics: () => {
         console.log('Initializing analytics page');
@@ -15,32 +31,6 @@ window.pageInit = {
         console.log('Initializing settings page');
     }
 };
-
-// Initialize app
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('Dashboard initializing...');
-
-    // Render static components
-    window.header.render();
-    window.footer.render();
-
-    // Navigate to initial page
-    window.router.navigate('dashboard');
-
-    // Setup communicator subscriptions
-    setupCommunicator();
-
-    // Setup periodic refresh
-    setupRefreshInterval();
-
-    // Allow manual refresh with Ctrl+R
-    document.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-            e.preventDefault();
-            refreshDashboard();
-        }
-    });
-});
 
 /**
  * Setup Electron IPC communication
@@ -53,12 +43,12 @@ function setupCommunicator() {
         }).catch(err => console.error('Error fetching data:', err));
     }
 
-    // Subscribe to messages from main process using the communicator
+    // Subscribe to generic messages from main process
     window.communicator.subscribe('message-to-renderer', (data) => {
         console.log('Response from main:', data);
     });
 
-    // Subscribe to ping messages from main process and respond with pong
+    // Subscribe to ping messages and respond with pong
     window.communicator.subscribe('ping', (data) => {
         console.log('Ping received from main:', data);
         window.communicator.send('pong-from-renderer', {
@@ -67,6 +57,12 @@ function setupCommunicator() {
             response: 'pong'
         });
     });
+
+    // Setup RSS feed updates
+    subscribeToRssUpdates();
+
+    // Setup messages feed updates
+    subscribeToMessagesUpdates();
 }
 
 /**
@@ -76,36 +72,35 @@ window.addEventListener('page-changed', (e) => {
     const page = e.detail.page;
     console.log(`Navigated to: ${page}`);
 
-    // Call page-specific initialization function if it exists
     if (window.pageInit && window.pageInit[page]) {
         window.pageInit[page]();
     }
 });
 
 /**
- * Update last refresh timestamp
+ * Initialize application on page load
  */
-function updateLastRefresh() {
-    const lastUpdateEl = document.getElementById('last-update');
-    if (lastUpdateEl) {
-        const now = new Date();
-        lastUpdateEl.textContent = now.toLocaleString();
-    }
-}
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('Dashboard initializing...');
 
-/**
- * Refresh dashboard data
- */
-function refreshDashboard() {
-    console.log('Refreshing dashboard...');
-    updateLastRefresh();
-    // Add your data refresh logic here
-}
+    // Render static components
+    window.header.render();
+    window.footer.render();
 
-/**
- * Setup automatic refresh interval
- */
-function setupRefreshInterval() {
-    // Refresh dashboard every 5 minutes
-    setInterval(refreshDashboard, 5 * 60 * 1000);
-}
+    // Setup communicator subscriptions first
+    setupCommunicator();
+
+    // Navigate to initial page
+    await window.router.navigate('dashboard');
+
+    // Setup periodic refresh
+    setupRefreshInterval();
+
+    // Allow manual refresh with Ctrl+R
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+            e.preventDefault();
+            refreshDashboard();
+        }
+    });
+});

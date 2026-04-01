@@ -20,7 +20,7 @@ class Cronjob {
         name = null, intervalMs = 30 * 1000,
         callback = null, lastRun = null,
         nextRun = null, isSceduled = false, isRunning = false,
-        owner = null, identifier = null
+        owner = null, identifier = null, fireLimit = null
     ) {
         this.name = name;
         this.intervalMs = intervalMs;
@@ -32,6 +32,8 @@ class Cronjob {
         this.owner = owner;
         this.identifier = identifier;
         this.timer = null;
+        this.fireLimit = fireLimit;
+        this._firedTimes = 0;
         console.log(`[CRON] Created: "${name}" CR${leftPad(this.identifier, 2, "0")} (every ${this.formatInterval(intervalMs)})`);
     }
 
@@ -48,10 +50,19 @@ class Cronjob {
         return `${(ms / 3600000).toFixed(1)}h`;
     }
 
+    resetFiredTimesCounter() {
+        this._firedTimes = 0;
+    }
+
     /**
      * Start the cron job - schedules it to run at regular intervals
+     * @param {boolean} immediateExecute - To automatically execute after running start()
+     * @param {boolean} resetLimits - whether to reset the counter of firedTimes
      */
-    start() {
+    start(immediateExecute = false, resetLimits = false) {
+        if (resetLimits) {
+            this._firedTimes = 0;
+        }
         if (this.isSceduled) {
             console.warn(
                 `[CRON] Job "${this.name}" CR${leftPad(this.identifier, 2, "0")} is already sceduled, skipping...`
@@ -60,6 +71,13 @@ class Cronjob {
         }
         this.isSceduled = true;
         const execute = async () => {
+            if (this.fireLimit != null && this._firedTimes >= this.fireLimit) {
+                console.info(
+                    `[CRON] Job "${this.name}" CR${leftPad(this.identifier, 2, "0")} has reached it's limit of ${this.fireLimit} fires. Will stop Cron..`
+                );
+                this.stop();
+                return;
+            }
             if (this.isRunning) {
                 console.warn(
                     `[CRON] Job "${this.name}" CR${leftPad(this.identifier, 2, "0")} is still running, skipping this interval`
@@ -74,10 +92,11 @@ class Cronjob {
             }
 
             this.isRunning = true;
+            this._firedTimes += 1;
             const startTime = Date.now();
 
             try {
-                await Promise.resolve(this.callback());
+                await Promise.resolve(this.callback(this));
                 this.lastRun = Date.now();
                 const duration = this.lastRun - startTime;
                 console.log(
@@ -92,7 +111,9 @@ class Cronjob {
         };
 
         // Run immediately on first schedule
-        execute();
+        if (immediateExecute) {
+            execute();
+        }
 
         // Schedule subsequent runs
         const timer = setInterval(execute, this.intervalMs);
@@ -121,6 +142,8 @@ class Cronjob {
             nextRun: new Date(this.nextRun).toLocaleString(),
             isRunning: this.isRunning,
             identifier: this.identifier,
+            fireLimit: this.fireLimit,
+            firedTimes: this._firedTimes,
             parent: (this.owner == null ? null : (this.owner.name == undefined ? "NAMELESS" : this.owner.name))
         }
     }

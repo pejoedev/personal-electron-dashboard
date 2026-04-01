@@ -14,9 +14,9 @@ class Header {
                 </div>
                 <nav class="header-nav">
                     <ul>
-                        <li><a href="#overview" class="nav-link" data-page="dashboard">Dashboard</a></li>
-                        <li><a href="#rss" class="nav-link" data-page="rss">RSS</a></li>
-                        <li><a href="#settings" class="nav-link" data-page="settings">Settings</a></li>
+                        <li><a href="#dashboard" class="nav-link" data-page="dashboard">Dashboard</a></li>
+                        <li><a href="#messages" class="nav-link" data-page="messages">Messages</a></li>
+                        <li><a href="#rss-feeds" class="nav-link" data-page="rss-feeds">RSS Feeds</a></li>
                     </ul>
                 </nav>
             </div>
