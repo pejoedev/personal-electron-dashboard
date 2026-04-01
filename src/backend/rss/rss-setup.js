@@ -72,7 +72,7 @@ async function FetchRss() {
                 pageSize: limit
             });
 
-            console.log(`[RSS Setup] Sent ${feeds.length} feeds to frontend (total: ${totalCount})`);
+            console.log(`[RSS Setup] Sent ${feeds?.length ?? 0} feeds to frontend (total: ${totalCount})`);
         } catch (error) {
             console.error('[RSS Setup] Failed to send RSS data to frontend:', error);
         }
