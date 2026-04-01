@@ -29,6 +29,7 @@ window.pageInit = {
     },
     settings: () => {
         console.log('Initializing settings page');
+        initializeSettings();
     }
 };
 
