@@ -173,6 +173,9 @@ function renderMessages(messages) {
         container.appendChild(messageElement);
     });
 
+    // Attach event listeners to action buttons
+    setupMessageActionButtons();
+
     console.log(`[Messages Render] Rendered ${messages.length} messages`);
 }
 
@@ -216,15 +219,17 @@ function createMessageElement(item) {
     if (item.isRss) {
         const articleTarget = fullscreenArticle ? '' : ' target="_blank"';
         const sourceTarget = fullscreenSource ? '' : ' target="_blank"';
+        const markAsReadBtn = !item.viewed ? `<button class="message-action-btn mark-as-read-btn" data-message-id="${escapeHtml(item.uuid)}">Mark as Read</button>` : '';
         actionButtons = `
             <a class="message-action-btn primary" href="${escapeHtml(item.link)}"${articleTarget}>Read Article</a>
             <a class="message-action-btn" href="${escapeHtml(item.feedLink)}"${sourceTarget}>View Feed</a>
-            <button class="message-action-btn" onclick="markMessageViewed('${escapeHtml(item.uuid)}')">Mark as Read</button>
+            ${markAsReadBtn}
         `;
     } else if (item.isAlert) {
+        const dismissBtn = !item.viewed ? `<button class="message-action-btn mark-as-read-btn" data-message-id="${escapeHtml(item.uuid)}">Dismiss</button>` : '';
         actionButtons = `
             <a class="message-action-btn primary" href="${escapeHtml(item.projectLink)}" target="_blank">View Project</a>
-            <button class="message-action-btn" onclick="markMessageViewed('${escapeHtml(item.uuid)}')">Dismiss</button>
+            ${dismissBtn}
         `;
     }
 
@@ -250,6 +255,22 @@ function createMessageElement(item) {
     `;
 
     return div;
+}
+
+/**
+ * Setup event listeners for message action buttons
+ */
+function setupMessageActionButtons() {
+    const buttons = document.querySelectorAll('.mark-as-read-btn');
+    buttons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const messageId = button.getAttribute('data-message-id');
+            if (messageId) {
+                markMessageViewed(messageId);
+            }
+        });
+    });
 }
 
 /**
