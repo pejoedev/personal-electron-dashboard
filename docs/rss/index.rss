@@ -1,0 +1,15 @@
+<rss version="2.0">
+    <channel>
+        <title>Personal Electron Dashboard</title>
+        <link>https://pejoedev.github.io/personal-electron-dashboard/</link>
+        <description>Updates and articles about the Personal Electron Dashboard project</description>
+        <language>en-us</language>
+        <item>
+            <title>Hello World!</title>
+            <link>https://pejoedev.github.io/personal-electron-dashboard/rss/f/1246cb8e-ae4e-47d8-a53c-e7f9df9fa215.html
+            </link>
+            <guid>1246cb8e-ae4e-47d8-a53c-e7f9df9fa215</guid>
+            <description>This is the 1st RSS item of this website.</description>
+        </item>
+    </channel>
+</rss>

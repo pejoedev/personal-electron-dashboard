@@ -5,59 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personal Electron Dashboard</title>
+    <link rel="stylesheet" href="./rss/styles.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .container {
+        .article-header {
             text-align: center;
-            background: white;
-            border-radius: 10px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 2.5rem;
-        }
-
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 1.1rem;
         }
 
         .links {
             display: flex;
             flex-direction: column;
             gap: 15px;
-            margin-top: 30px;
+            margin-top: 40px;
         }
 
-        a {
+        .links a {
             display: inline-block;
             padding: 12px 30px;
             border-radius: 5px;
             text-decoration: none;
             font-weight: 600;
-            transition: all 0.3s ease;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             font-size: 1rem;
+            transition: all 0.3s ease;
         }
 
         .btn-github {
@@ -86,11 +55,20 @@
 
 <body>
     <div class="container">
-        <h1>Welcome</h1>
-        <p class="subtitle">Personal Electron Dashboard</p>
-        <p style="color: #666; margin-bottom: 20px;">
-            A dashboard application built with Electron for managing messages, RSS feeds, and system tasks.
-        </p>
+        <div class="article-header">
+            <h1 class="article-title">Personal Electron Dashboard</h1>
+        </div>
+
+        <article class="article-content">
+            <p>
+                Welcome to the Personal Electron Dashboard. This is a dashboard application built with Electron for
+                managing messages, RSS feeds, and system tasks.
+            </p>
+
+            <p>
+                Explore the project on GitHub or check out our RSS feed for the latest updates and announcements.
+            </p>
+        </article>
 
         <div class="links">
             <a href="https://github.com/pejoedev/personal-electron-dashboard" class="btn-github">

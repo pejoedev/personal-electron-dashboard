@@ -36,6 +36,10 @@ async function FetchRss() {
         formattedResponse.language = `${responeChannel.language ?? ""}`;
         formattedResponse.last_fetch = `${new Date(Date.now()).toUTCString()}`
         let itemsList = responeChannel.item;
+        // Ensure itemsList is always an array (xml2js returns single object if only one item)
+        if (!Array.isArray(itemsList)) {
+            itemsList = itemsList ? [itemsList] : [];
+        }
         itemsList.forEach((itemItem) => {
             let formattedItem = {};
             formattedItem.title = `${itemItem.title ?? ""}`;

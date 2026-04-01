@@ -128,7 +128,7 @@ function templateItems() {
         db.prepare(`
             INSERT INTO rssFollow (uuid, name, rssLink, deleted)
             VALUES (?, ?, ?, ?)
-        `).run(uuid, 'system', 'https://pejoedev.github.io/personal-electron-dashboard/rss', 0);
+        `).run(uuid, 'system', 'https://pejoedev.github.io/personal-electron-dashboard/rss/index.rss', 0);
         uuid = uuidv4();
         if (INSERT_DATA) {
             db.prepare(`
