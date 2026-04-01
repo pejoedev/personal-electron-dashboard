@@ -30,14 +30,6 @@ jobs:
           mkdir -p docs
           echo "{\"releasedVersion\": \"${{ github.event.release.tag_name }}\"}" > docs/version.json
 
-      - name: Commit and push version.json
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add docs/version.json
-          git commit -m "chore: update version.json for release ${{ github.event.release.tag_name }}"
-          git push
-
       - name: Upload release assets
         uses: softprops/action-gh-release@v1
         with:
