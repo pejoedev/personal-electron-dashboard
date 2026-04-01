@@ -1,0 +1,155 @@
+<link rel="stylesheet" href="styles/settings.css" />
+
+<div id="entire-settings" class="content-section">
+    <div class="settings-header">
+        <h1>Settings</h1>
+        <p>Customize your dashboard experience</p>
+    </div>
+
+    <!-- Interface Settings -->
+    <section class="settings-section">
+        <div class="section-title">
+            <span class="section-icon">🎨</span>
+            <h2>Interface</h2>
+        </div>
+
+        <div class="settings-card">
+            <div class="setting-item">
+                <div class="setting-content">
+                    <label for="start-minimized" class="setting-label">Start Minimized</label>
+                    <p class="setting-description">Launch the dashboard in a minimized state</p>
+                </div>
+                <div class="setting-control">
+                    <input type="checkbox" id="start-minimized" class="toggle-switch" />
+                    <label for="start-minimized" class="toggle-label"></label>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reading Experience -->
+    <section class="settings-section">
+        <div class="section-title">
+            <span class="section-icon">📖</span>
+            <h2>Reading Experience</h2>
+        </div>
+
+        <div class="settings-card">
+            <!-- Article Display Settings -->
+            <div class="setting-item">
+                <div class="setting-content">
+                    <label for="fullscreen-article" class="setting-label">Open Articles in Fullscreen</label>
+                    <p class="setting-description">When reading an article, open it in fullscreen mode instead of a new
+                        window</p>
+                </div>
+                <div class="setting-control">
+                    <input type="checkbox" id="fullscreen-article" class="toggle-switch" />
+                    <label for="fullscreen-article" class="toggle-label"></label>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="setting-item">
+                <div class="setting-content">
+                    <label for="fullscreen-source" class="setting-label">Open Article Source in New Window</label>
+                    <p class="setting-description">Open the original source in a new window instead of fullscreen</p>
+                </div>
+                <div class="setting-control">
+                    <input type="checkbox" id="fullscreen-source" class="toggle-switch" checked />
+                    <label for="fullscreen-source" class="toggle-label"></label>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Dismiss Button Setting -->
+            <div class="setting-item">
+                <div class="setting-content">
+                    <label for="hide-dismiss" class="setting-label">Hide Dismiss Button</label>
+                    <p class="setting-description">Remove the dismiss button from article cards</p>
+                </div>
+                <div class="setting-control">
+                    <input type="checkbox" id="hide-dismiss" class="toggle-switch" />
+                    <label for="hide-dismiss" class="toggle-label"></label>
+                </div>
+            </div>
+
+            <!-- Conditional Setting -->
+            <div id="conditional-setting" class="conditional-setting" style="display: none;">
+                <div class="divider"></div>
+                <div class="setting-item">
+                    <div class="setting-content">
+                        <label for="remove-on-read" class="setting-label">Remove from Feed When Reading</label>
+                        <p class="setting-description">Automatically remove articles from the feed when you open them to
+                            read</p>
+                        <span class="setting-hint">Only applies when the dismiss button is visible</span>
+                    </div>
+                    <div class="setting-control">
+                        <input type="checkbox" id="remove-on-read" class="toggle-switch" checked />
+                        <label for="remove-on-read" class="toggle-label"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Management -->
+    <section class="settings-section">
+        <div class="section-title">
+            <span class="section-icon">🗑️</span>
+            <h2>Data Management</h2>
+        </div>
+
+        <div class="settings-card">
+            <div class="setting-item">
+                <div class="setting-content">
+                    <label for="delete-data-mode" class="setting-label">Delete Behavior</label>
+                    <p class="setting-description">Choose what happens when you delete an RSS feed</p>
+                </div>
+                <div class="setting-control select-control">
+                    <select id="delete-data-mode" class="select-input">
+                        <option value="3">Ask Each Time</option>
+                        <option value="1">Delete Permanently</option>
+                        <option value="2">Mark as Deleted</option>
+                    </select>
+                    <span class="select-arrow">▼</span>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Delete Behavior Explanation -->
+            <div class="delete-behavior-info">
+                <div class="info-item">
+                    <span class="info-icon">❓</span>
+                    <div class="info-content">
+                        <h4>Ask Each Time</h4>
+                        <p>You'll be prompted to choose the deletion behavior each time you delete an RSS feed</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span class="info-icon">🗂️</span>
+                    <div class="info-content">
+                        <h4>Mark as Deleted</h4>
+                        <p>Feeds will be marked as deleted but kept in the database. They won't appear in new updates
+                        </p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span class="info-icon">⚠️</span>
+                    <div class="info-content">
+                        <h4>Delete Permanently</h4>
+                        <p>Feeds and all associated articles will be permanently removed from the database</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Settings Actions -->
+    <section class="settings-actions">
+        <button class="btn btn-primary" id="save-settings">Save Settings</button>
+        <button class="btn btn-secondary" id="reset-settings">Reset to Defaults</button>
+    </section>
+</div>
