@@ -6,9 +6,10 @@ needed for official release
         Default: True
         Saved in localstorage
     - delete data on delete boolean
-        If this is true, when an item from the rssFollow table is deleted, it will actually get deleted, and so will all feed table items where feed.rssId == rssFollow.uuid, and also all rss table items where feed.uuid == rss.feedId, and also all message table items where messge.uuid == rss.messageId. So basically all items that were created from the rssFollow table item.
-        But if the value is false, simply set deleted to True (1, since sqlite doesn't have boolean), and that prevents it from being fetched for new RSS updates.
-        Default: True
+        If this is 1, when an item from the rssFollow table is deleted, it will actually get deleted, and so will all feed table items where feed.rssId == rssFollow.uuid, and also all rss table items where feed.uuid == rss.feedId, and also all message table items where messge.uuid == rss.messageId. So basically all items that were created from the rssFollow table item.
+        But if the value is 2, simply set deleted to True (1, since sqlite doesn't have boolean), and that prevents it from being fetched for new RSS updates.
+        If the value is 3, it asks per deletion
+        Default: 3
         Saved in userSetting table under key "delete.data.on.rssfollow.delete"
     - reader
         - open rss item in fullscreen boolean
