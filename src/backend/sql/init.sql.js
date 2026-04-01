@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const dbPath = path.join(app.getPath('userData'), 'perselec-dash.db');
 const db = new Database(dbPath);
-const DB_DIAGRAM_VERSION = "v1.0.8";
+const DB_DIAGRAM_VERSION = "v1.1.0";
 
 const INSERT_DATA = true;
 
@@ -16,7 +16,8 @@ function initializeDatabase() {
   CREATE TABLE IF NOT EXISTS rssFollow (
     uuid TEXT PRIMARY KEY,
     name TEXT,
-    rssLink TEXT
+    rssLink TEXT,
+    deleted BOOLEAN
   );
 
   CREATE TABLE IF NOT EXISTS feed (
@@ -28,6 +29,11 @@ function initializeDatabase() {
     description TEXT,
     language TEXT,
     FOREIGN KEY (rssId) REFERENCES rssFollow(uuid)
+  );
+
+  CREATE TABLE IF NOT EXISTS userSetting (
+    key TEXT,
+    value TEXT
   );
 
   CREATE TABLE IF NOT EXISTS message (
@@ -87,25 +93,37 @@ function initializeDatabase() {
 
 function templateItems() {
     // Check if rssFollow table is empty
-    const count = db.prepare('SELECT COUNT(*) as count FROM rssFollow').get();
+    const count = db
+        .prepare('SELECT COUNT(*) as count FROM rssFollow')
+        .get();
 
     if (count.count === 0) {
         // Insert default rssFollow item
         let uuid = uuidv4();
         db.prepare(`
-            INSERT INTO rssFollow (uuid, name, rssLink)
-            VALUES (?, ?, ?)
-        `).run(uuid, 'dimden.dev', 'https://dimden.dev/rss.xml');
+            INSERT INTO rssFollow (uuid, name, rssLink, deleted)
+            VALUES (?, ?, ?, ?)
+        `).run(uuid, 'dimden.dev', 'https://dimden.dev/rss.xml', false);
         uuid = uuidv4();
         db.prepare(`
-            INSERT INTO rssFollow (uuid, name, rssLink)
-            VALUES (?, ?, ?)
-        `).run(uuid, 'besluiten', 'https://feeds.rijksoverheid.nl/besluiten.rss');
+            INSERT INTO rssFollow (uuid, name, rssLink, deleted)
+            VALUES (?, ?, ?, ?)
+        `).run(
+            uuid,
+            'besluiten',
+            'https://feeds.rijksoverheid.nl/besluiten.rss',
+            false
+        );
         uuid = uuidv4();
         db.prepare(`
-            INSERT INTO rssFollow (uuid, name, rssLink)
-            VALUES (?, ?, ?)
-        `).run(uuid, 'nosnieuwsopmerkelijk', 'https://feeds.nos.nl/nosnieuwsopmerkelijk');
+            INSERT INTO rssFollow (uuid, name, rssLink, deleted)
+            VALUES (?, ?, ?, ?)
+        `).run(
+            uuid,
+            'nosnieuwsopmerkelijk',
+            'https://feeds.nos.nl/nosnieuwsopmerkelijk',
+            false
+        );
 
         console.log('Default RSS feed added: dimden.dev');
     }

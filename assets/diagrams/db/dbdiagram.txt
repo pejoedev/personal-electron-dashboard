@@ -1,9 +1,10 @@
-// V1.0.8
+// V1.1.0
 
 Table rssFollow {
   uuid TEXT [pk]
   name TEXT
   rssLink TEXT
+  deleted BOOLEAN
 }
 
 
@@ -15,6 +16,11 @@ Table feed {
   last_fetch TEXT
   description TEXT
   language TEXT
+}
+
+Table userSetting {
+  key TEXT
+  value TEXT
 }
 
 Table message {
