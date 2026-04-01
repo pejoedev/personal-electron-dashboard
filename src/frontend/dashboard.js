@@ -208,6 +208,15 @@ function updatePaginationControls() {
  * @param {string} messageId - The UUID of the message to mark as viewed
  */
 function markItemViewed(messageId) {
+    // Check if the "remove on read" setting is enabled
+    // When enabled, clicking read does NOT mark as read
+    const removeOnRead = localStorage.getItem('rss.remove.on.read') !== 'false'; // Default true
+
+    if (removeOnRead) {
+        console.log('[Mark Viewed] Remove on read setting is enabled - NOT marking item as viewed');
+        return;
+    }
+
     console.log('[Mark Viewed] Sending mark-item-viewed request for:', messageId);
 
     if (window.communicator) {

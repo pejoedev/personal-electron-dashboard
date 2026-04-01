@@ -261,6 +261,7 @@ function createMessageElement(item) {
  * Setup event listeners for message action buttons
  */
 function setupMessageActionButtons() {
+    // Handle explicit "Mark as Read" buttons
     const buttons = document.querySelectorAll('.mark-as-read-btn');
     buttons.forEach(button => {
         button.addEventListener('click', (e) => {
@@ -268,6 +269,26 @@ function setupMessageActionButtons() {
             const messageId = button.getAttribute('data-message-id');
             if (messageId) {
                 markMessageViewed(messageId);
+            }
+        });
+    });
+
+    // Handle primary action buttons (Read Article / View Project)
+    // These should also mark the message as read when clicked
+    const primaryActionLinks = document.querySelectorAll('.message-action-btn.primary');
+    primaryActionLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            // Find the parent message item to get the message ID
+            const messageItem = link.closest('.message-item');
+            if (messageItem) {
+                // Try to find the message ID from the mark-as-read button if it exists
+                const markAsReadBtn = messageItem.querySelector('.mark-as-read-btn');
+                if (markAsReadBtn) {
+                    const messageId = markAsReadBtn.getAttribute('data-message-id');
+                    if (messageId) {
+                        markMessageViewed(messageId);
+                    }
+                }
             }
         });
     });
@@ -357,6 +378,15 @@ function previousMessagesPage() {
  * @param {string} messageId - The UUID of the message
  */
 function markMessageViewed(messageId) {
+    // Check if the "remove on read" setting is enabled
+    // When enabled, clicking read/dismiss does NOT mark as read
+    const removeOnRead = localStorage.getItem('rss.remove.on.read') !== 'false'; // Default true
+
+    if (removeOnRead) {
+        console.log('[Messages] Remove on read setting is enabled - NOT marking message as viewed:', messageId);
+        return;
+    }
+
     console.log('[Messages] Marking message as viewed:', messageId);
 
     if (window.communicator) {
