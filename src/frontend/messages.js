@@ -190,12 +190,17 @@ function createMessageElement(item) {
     const typeLabel = item.isRss ? 'RSS' : item.isAlert ? 'Alert' : 'Message';
     const typeBadge = `<span class="message-badge ${item.isRss ? 'rss' : 'alert'}">${typeLabel}</span>`;
 
+    // Get fullscreen settings for links
+    const fullscreenArticle = localStorage.getItem('rss.fullscreen.article') === 'true';
+    const fullscreenSource = localStorage.getItem('rss.fullscreen.source') !== 'false'; // Default true
+
     let metaHtml = '';
     if (item.isRss) {
+        const sourceTarget = fullscreenSource ? '' : ' target="_blank"';
         metaHtml = `
             <div class="message-meta-item">
                 <span class="message-meta-label">Feed:</span>
-                <a href="${escapeHtml(item.feedLink)}" target="_blank">${escapeHtml(item.feedName)}</a>
+                <a href="${escapeHtml(item.feedLink)}"${sourceTarget}>${escapeHtml(item.feedName)}</a>
             </div>
         `;
     } else if (item.isAlert) {
@@ -209,9 +214,11 @@ function createMessageElement(item) {
 
     let actionButtons = '';
     if (item.isRss) {
+        const articleTarget = fullscreenArticle ? '' : ' target="_blank"';
+        const sourceTarget = fullscreenSource ? '' : ' target="_blank"';
         actionButtons = `
-            <a class="message-action-btn primary" href="${escapeHtml(item.link)}" target="_blank">Read Article</a>
-            <a class="message-action-btn" href="${escapeHtml(item.feedLink)}" target="_blank">View Feed</a>
+            <a class="message-action-btn primary" href="${escapeHtml(item.link)}"${articleTarget}>Read Article</a>
+            <a class="message-action-btn" href="${escapeHtml(item.feedLink)}"${sourceTarget}>View Feed</a>
             <button class="message-action-btn" onclick="markMessageViewed('${escapeHtml(item.uuid)}')">Mark as Read</button>
         `;
     } else if (item.isAlert) {

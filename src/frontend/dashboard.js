@@ -105,13 +105,19 @@ function createCardElement(item) {
         }
     } else if (item.isRss) {
         // RSS card
+        // Get fullscreen settings for links
+        const fullscreenArticle = localStorage.getItem('rss.fullscreen.article') === 'true';
+        const fullscreenSource = localStorage.getItem('rss.fullscreen.source') !== 'false'; // Default true
+        const articleTarget = fullscreenArticle ? '' : ' target="_blank"';
+        const sourceTarget = fullscreenSource ? '' : ' target="_blank"';
+
         card.innerHTML = `
             <p class="rss-title">${escapeHtml(item.title)}</p>
             <div class="rss-description">${escapeHtml(item.description)}</div>
             <div class="rss-notes">
-                <a class="rss-read" href="${escapeHtml(item.link)}" target="_blank">Read</a>
+                <a class="rss-read" href="${escapeHtml(item.link)}"${articleTarget}>Read</a>
                 <button class="rss-dismiss" type="button">Dismiss</button>
-                <a class="rss-source" href="${escapeHtml(item.feedLink)}" target="_blank">${escapeHtml(item.feedName)}</a>
+                <a class="rss-source" href="${escapeHtml(item.feedLink)}"${sourceTarget}>${escapeHtml(item.feedName)}</a>
                 <p class="rss-timestamp">${formatDate(item.publication_date || item.fetch_date)}</p>
             </div>
         `;
