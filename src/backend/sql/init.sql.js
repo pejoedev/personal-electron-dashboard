@@ -7,7 +7,7 @@ const dbPath = path.join(app.getPath('userData'), 'perselec-dash.db');
 const db = new Database(dbPath);
 const DB_DIAGRAM_VERSION = "v1.1.0";
 
-const INSERT_DATA = true;
+const INSERT_DATA = false;
 
 // Create tables on app startup
 function initializeDatabase() {
