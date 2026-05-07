@@ -27,6 +27,7 @@ personal-electron-dashboard/
 
 ```bash
 npm install
+npx electron-rebuild
 ```
 
 ### Development
