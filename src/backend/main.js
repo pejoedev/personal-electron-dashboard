@@ -50,7 +50,7 @@ const createWindow = () => {
     // In development, load from Vite dev server
     // In production, load from the built dist folder
     const isDev = process.env.NODE_ENV === 'development';
-    
+
     if (isDev && process.argv.includes('--dev-server')) {
         // Load from Vite dev server (localhost:5173)
         mainWindow.loadURL('http://localhost:5173');
@@ -58,7 +58,7 @@ const createWindow = () => {
     } else {
         // Load from built dist folder
         const distPath = path.join(__dirname, '../../dist/index.html');
-        
+
         if (fs.existsSync(distPath)) {
             // Use file:// protocol to load from disk
             const fileUrl = `file://${distPath}`;
@@ -218,7 +218,7 @@ ipcMain.handle('check-for-updates', async () => {
     try {
         const response = await fetch('https://api.github.com/repos/pejoedev/personal-electron-dashboard/releases/latest');
         if (!response.ok) throw new Error('Failed to fetch releases');
-        
+
         const data = await response.json();
         return {
             latest: data.tag_name.replace(/^v/, ''), // Remove 'v' prefix if present
@@ -405,7 +405,7 @@ function setupCommunicationHandlers() {
             });
 
             console.log(`[Main] Created new RSS feed: ${newFeed.uuid}`);
-            
+
             // Immediately fetch the new feed
             console.log('[Main] Fetching RSS for newly created feed...');
             await FetchRss();
@@ -434,7 +434,7 @@ function setupCommunicationHandlers() {
             });
 
             console.log(`[Main] Updated RSS feed: ${data.uuid}`);
-            
+
             // Immediately fetch the updated feed
             console.log('[Main] Fetching RSS for updated feed...');
             await FetchRss();

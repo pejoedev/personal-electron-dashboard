@@ -15,20 +15,20 @@ import './styles/settings.css';
 console.log('[App] Initializing App component');
 
 function App() {
-  console.log('[App] Rendering App');
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Navigate to="/dashboard" />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="messages" element={<Messages />} />
-          <Route path="rss-feeds" element={<RSSFeeds />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
-      </Routes>
-    </Router>
-  );
+    console.log('[App] Rendering App');
+    return (
+        <Router>
+            <Routes>
+                <Route path="/" element={<Layout />}>
+                    <Route index element={<Navigate to="/dashboard" />} />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="messages" element={<Messages />} />
+                    <Route path="rss-feeds" element={<RSSFeeds />} />
+                    <Route path="settings" element={<Settings />} />
+                </Route>
+            </Routes>
+        </Router>
+    );
 }
 
 export default App;
