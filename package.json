@@ -19,6 +19,7 @@
     "productName": "Personal Dashboard",
     "files": [
       "src/**/*",
+      "dist/**/*",
       "assets/**/*",
       "node_modules/**/*",
       "package.json"
@@ -38,20 +39,27 @@
     }
   },
   "scripts": {
-    "start": "electron . --ozone-platform=x11",
-    "dev": "nodemon --exec electron . --ozone-platform=x11",
+    "dev:vite": "vite",
+    "dev:electron": "electron . --ozone-platform=x11 --dev-server",
+    "build:frontend": "vite build",
+    "preview": "vite preview",
+    "start": "npm run build:frontend && electron . --ozone-platform=x11",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "electron-builder",
-    "build:linux": "electron-builder --linux"
+    "build": "npm run build:frontend && electron-builder",
+    "build:linux": "npm run build:frontend && electron-builder --linux"
   },
   "devDependencies": {
     "@electron/rebuild": "^4.0.3",
+    "@vitejs/plugin-react": "^4.3.1",
     "electron": "^41.0.0",
     "electron-builder": "^26.8.1",
-    "nodemon": "^3.1.14"
+    "vite": "^5.2.11"
   },
   "dependencies": {
     "better-sqlite3": "^12.8.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.24.2",
     "uuid": "^13.0.0",
     "xml2js": "^0.6.2"
   }

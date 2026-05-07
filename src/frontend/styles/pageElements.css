@@ -5,6 +5,8 @@
   position: sticky;
   top: 0;
   z-index: 1000;
+  width: 100%;
+  flex-shrink: 0;
 }
 
 header,
@@ -14,23 +16,33 @@ header * {
 }
 
 .header-container {
-  padding: 0 10px;
-  max-width: 1400px;
-  margin: 0 auto;
+  padding: 1rem 2rem;
+  max-width: 100%;
+  margin: 0;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  height: auto;
+}
+
+.header-title {
+  display: flex;
   align-items: center;
 }
 
 .header-title h1 {
   font-size: 1.5rem;
   font-weight: 600;
+  margin: 0;
+  color: var(--text-primary);
 }
 
 .header-nav ul {
   display: flex;
   list-style: none;
   gap: 2rem;
+  margin: 0;
+  padding: 0;
 }
 
 .nav-link {
@@ -39,9 +51,14 @@ header * {
   transition: var(--transition);
   padding-bottom: 0.5rem;
   border-bottom: 2px solid transparent;
+  display: inline-block;
+  font-weight: 500;
 }
 
-.nav-link:hover,
+.nav-link:hover {
+  color: var(--text-primary);
+}
+
 .nav-link.active {
   color: var(--primary-color);
   border-bottom-color: var(--primary-color);
@@ -51,13 +68,18 @@ header * {
 .footer {
   background-color: var(--surface-color);
   border-top: 1px solid var(--border-color);
-  margin-top: auto;
+  padding: 1.5rem 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  width: 100%;
+  flex-shrink: 0;
 }
 
 .footer-content {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -82,8 +104,195 @@ header * {
   text-decoration: underline;
 }
 
-.footer-content p {
+/* ==================== Buttons ==================== */
+.btn,
+button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.btn:hover,
+button:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.btn:active,
+button:active {
+  transform: translateY(0);
+}
+
+.btn:disabled,
+button:disabled {
+  background-color: var(--border-color);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+  background-color: var(--secondary-color);
+}
+
+.btn-secondary {
+  background-color: var(--surface-color);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--border-color);
+  border-color: var(--primary-color);
+}
+
+.btn-danger {
+  background-color: var(--danger-color);
+}
+
+.btn-danger:hover {
+  background-color: #dc2626;
+}
+
+/* ==================== Forms ==================== */
+input,
+select,
+textarea {
+  background-color: var(--surface-color);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: var(--transition);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+input::placeholder {
   color: var(--text-secondary);
-  font-size: 0.9rem;
-  margin: 0;
+}
+
+/* ==================== Pagination ==================== */
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  padding: 1rem;
+}
+
+.pagination-btn,
+.rss-pagination button,
+.messages-pagination button {
+  background-color: var(--surface-color);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.pagination-btn:hover,
+.rss-pagination button:hover,
+.messages-pagination button:hover {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.pagination-btn:disabled,
+.rss-pagination button:disabled,
+.messages-pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-info {
+  margin: 0 1rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ==================== Toggles ==================== */
+.toggle-switch {
+  width: 50px;
+  height: 24px;
+  cursor: pointer;
+  appearance: none;
+  background: var(--border-color);
+  border-radius: 12px;
+  position: relative;
+  transition: var(--transition);
+}
+
+.toggle-switch:checked {
+  background: var(--primary-color);
+}
+
+.toggle-switch::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  top: 2px;
+  left: 2px;
+  transition: var(--transition);
+}
+
+.toggle-switch:checked::before {
+  left: 28px;
+}
+
+/* ==================== Notifications ==================== */
+.notification {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 10000;
+  animation: slideIn 0.3s ease;
+  font-weight: 500;
+  max-width: 300px;
+}
+
+.notification-success {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.notification-error {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.notification-info {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.notification-warning {
+  background-color: var(--warning-color);
+  color: white;
 }

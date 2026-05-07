@@ -47,7 +47,29 @@ const createWindow = () => {
     communicator.setMainWindow(mainWindow);
 
     // Load the index.html of the app
-    mainWindow.loadFile(path.join(__dirname, '../frontend/index.html'));
+    // In development, load from Vite dev server
+    // In production, load from the built dist folder
+    const isDev = process.env.NODE_ENV === 'development';
+    
+    if (isDev && process.argv.includes('--dev-server')) {
+        // Load from Vite dev server (localhost:5173)
+        mainWindow.loadURL('http://localhost:5173');
+        mainWindow.webContents.openDevTools();
+    } else {
+        // Load from built dist folder
+        const distPath = path.join(__dirname, '../../dist/index.html');
+        
+        if (fs.existsSync(distPath)) {
+            // Use file:// protocol to load from disk
+            const fileUrl = `file://${distPath}`;
+            mainWindow.loadURL(fileUrl);
+        } else {
+            // Fallback: try to load from the old frontend folder
+            const frontendPath = path.join(__dirname, '../frontend/index.html');
+            const fileUrl = `file://${frontendPath}`;
+            mainWindow.loadURL(fileUrl);
+        }
+    }
 
     // Open DevTools in development (comment out for production)
     // mainWindow.webContents.openDevTools();

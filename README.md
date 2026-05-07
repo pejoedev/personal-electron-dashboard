@@ -1,18 +1,27 @@
 # Personal Electron Dashboard
 
-A modern, responsive Electron dashboard application with a clean architecture and professional UI.
+A modern, responsive Electron dashboard application built with React and Vite.
 
 ## 📁 Project Structure
 
 ```
 personal-electron-dashboard/
 ├── src/
-│   ├── main.js          # Electron main process
-│   ├── preload.js       # Secure IPC communication bridge
-│   ├── index.html       # Dashboard HTML template
-│   ├── styles.css       # Dashboard styling
-│   └── app.js           # Renderer process logic
+│   ├── backend/         # Electron main process & backend logic
+│   │   ├── main.js      # Electron main process
+│   │   ├── preload.js   # Secure IPC communication bridge
+│   │   └── models/      # Data models and handlers
+│   ├── frontend/        # React frontend application
+│   │   ├── main.jsx     # React entry point
+│   │   ├── App.jsx      # Main App component with routing
+│   │   ├── index.html   # HTML template
+│   │   ├── hooks/       # Custom React hooks
+│   │   ├── components/  # Reusable React components
+│   │   ├── pages/       # Page components
+│   │   └── styles/      # CSS stylesheets
+├── dist/                # Built React app (production)
 ├── assets/              # Static assets (images, icons, etc.)
+├── vite.config.js       # Vite configuration
 ├── package.json         # Project configuration
 └── README.md            # This file
 ```
@@ -32,22 +41,55 @@ npx electron-rebuild
 
 ### Development
 
-Start the app in development mode:
+For development, you need to run two processes:
+
+1. **Start the Vite dev server** (in one terminal):
+```bash
+npm run dev:vite
+```
+
+2. **Start Electron** (in another terminal):
+```bash
+npm run dev:electron
+```
+
+The dev server runs on http://localhost:5173 and Electron will load from there.
+
+### Production Build
+
+Build the production bundle:
+
+```bash
+npm run build
+```
+
+This builds the React app with Vite and packages it with Electron Builder.
+
+### Start Production App
 
 ```bash
 npm start
-# or
-npm run dev
 ```
 
 ## 📋 Features
 
-- **Header Navigation**: Sticky header with easy navigation between sections
-- **Dashboard Cards**: Display key metrics and statistics
-- **Responsive Design**: Works on desktop and scales to mobile viewports
-- **Footer**: Professional footer with links and information
-- **Modular Structure**: Easy to extend and customize
+- **React Frontend**: Modern React components with hooks
+- **React Router**: Client-side routing between pages
+- **Vite Build Tool**: Fast development server and optimized production builds
+- **Dashboard**: Display RSS feeds with pagination
+- **Messages**: Filter and browse messages with advanced filters
+- **Settings**: Customizable user preferences
+- **Responsive Design**: Works on desktop and responsive layouts
 - **Secure IPC**: Electron preload script for safe main/renderer communication
+- **TypeScript Ready**: Can be extended with TypeScript
+
+## 🏗️ Technology Stack
+
+- **Frontend**: React 18, React Router 6, Vite
+- **Backend**: Electron, Node.js
+- **Database**: better-sqlite3
+- **Build Tool**: Vite with React plugin
+- **Package Builder**: Electron Builder
 
 ## 🎨 Customization
 

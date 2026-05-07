@@ -63,22 +63,25 @@ async function FetchRss() {
     // Send the new data to the frontends
     // this means the feed items and the Settings
     if (communicator) {
-        const hideViewed = true;
         const limit = 20;
         const page = 0;
 
         try {
-            const feeds = messagesHandler.fetchMessages(hideViewed, limit, page);
-            const totalCount = messagesHandler.getTotalMessageCount(hideViewed);
-
-            communicator.send('rss-feed-update', {
-                feeds: feeds,
-                totalCount: totalCount,
-                currentPage: page,
-                pageSize: limit
+            const result = messagesHandler.fetchMessages({
+                type: 'rss',
+                viewedStatus: 'unviewed',
+                limit: limit,
+                page: page
             });
 
-            console.log(`[RSS Setup] Sent ${feeds?.length ?? 0} feeds to frontend (total: ${totalCount})`);
+            communicator.send('rss-feed-update', {
+                feeds: result.items || [],
+                totalCount: result.totalCount || 0,
+                currentPage: result.currentPage || page,
+                pageSize: result.pageSize || limit
+            });
+
+            console.log(`[RSS Setup] Sent ${result.items?.length ?? 0} feeds to frontend (total: ${result.totalCount})`);
         } catch (error) {
             console.error('[RSS Setup] Failed to send RSS data to frontend:', error);
         }
